@@ -2,25 +2,33 @@ import {
   SandpackProvider, 
   SandpackLayout, 
   SandpackCodeEditor, 
-  SandpackTests, 
   SandpackConsole,
-  SandpackPreview,
-  Sandpack
+  SandpackPreview
 } from "@codesandbox/sandpack-react";
 
-const customSetup = {
+interface CustomSetup {
+  dependencies: {
+    [key: string]: string;
+  };
+}
+
+const customSetup: CustomSetup = {
   dependencies: {
     "moo": "latest"
   },
 };
 
-const files = {
-  "add.ts": `export function add(a, b) {
+interface Files {
+  [key: string]: string;
+}
+
+const files: Files = {
+  "add.ts": `export function add(a: number, b: number): number {
   return a + b;
 }`,
 }
 
-export default () => (
+const App = () => (
   <SandpackProvider template="node" files={files} customSetup={customSetup}>
     <SandpackLayout>
       <SandpackCodeEditor />
@@ -30,3 +38,5 @@ export default () => (
     </SandpackLayout>
   </SandpackProvider>
 );
+
+export default App;
