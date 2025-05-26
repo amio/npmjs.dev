@@ -1,11 +1,32 @@
-import { Sandpack } from "@codesandbox/sandpack-react";
+import { 
+  SandpackProvider, 
+  SandpackLayout, 
+  SandpackCodeEditor, 
+  SandpackTests, 
+  SandpackConsole,
+  SandpackPreview,
+  Sandpack
+} from "@codesandbox/sandpack-react";
 
-const App = () => {
-  return (
-    <div>
-      <Sandpack options={{ readOnly: true }} />
-    </div>
-  );
+const customSetup = {
+  dependencies: {
+    "moo": "latest"
+  },
 };
 
-export default App;
+const files = {
+  "add.ts": `export function add(a, b) {
+  return a + b;
+}`,
+}
+
+export default () => (
+  <SandpackProvider template="node" files={files} customSetup={customSetup}>
+    <SandpackLayout>
+      <SandpackCodeEditor />
+      <SandpackPreview />
+      <SandpackConsole />
+      {/* <SandpackTests /> */}
+    </SandpackLayout>
+  </SandpackProvider>
+);
