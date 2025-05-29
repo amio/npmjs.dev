@@ -1,4 +1,5 @@
 import React from 'react';
+import './output-display.css';
 
 export interface OutputDisplayProps {
   output: string;
@@ -16,16 +17,16 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
   return (
     <div className="output-panel">
       <div className="panel-header">
-        <h3>执行结果</h3>
+        <h3>Execution Result</h3>
         <button onClick={onClear} className="btn btn-secondary">
-          清空输出
+          Clear Output
         </button>
       </div>
       
       <div className="output-container">
         {error && (
           <div className="error-output">
-            <h4>❌ 错误信息</h4>
+            <h4>❌ Error Message</h4>
             <pre>{error}</pre>
           </div>
         )}
@@ -38,16 +39,16 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
         
         {!output && !error && !isLoading && (
           <div className="placeholder">
-            点击"执行代码"按钮来运行你的 JavaScript 代码
+            Click "Execute Code" button to run your JavaScript code
             <br />
-            <small>支持 console.log 输出和返回值显示</small>
+            <small>Supports console.log output and return value display</small>
           </div>
         )}
         
         {isLoading && (
           <div className="loading">
             <div className="spinner"></div>
-            正在执行代码...
+            Executing code...
           </div>
         )}
       </div>

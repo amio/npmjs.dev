@@ -1,43 +1,40 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { CodeEditor } from './components/code-editor';
-import { OutputDisplay } from './components/output-display';
-import { JSExecutorEngine } from './engine/js-executor-engine';
+import { CodeEditor } from './code-editor';
+import { OutputDisplay } from './output-display';
+import { JSExecutorEngine } from '../engine/js-executor-engine';
 import './js-executor.css';
 
-const defaultCode = `// 欢迎使用 JavaScript 执行器
-
-import moo from 'moo';
-console.log('Moo 模块已加载:', moo);
-console.log('Hello, QuickJS!');
-
-// 尝试一些计算
-const fibonacci = (n) => {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
+// Parse package name from URL
+const getPackageNameFromUrl = (): string => {
+  const url = window.location.href;
+  const match = url.match(/\/package\/([^\/\?#]+)/);
+  return match ? match[1] : 'lodash'; // Default to lodash as example
 };
 
-console.log('斐波那契数列前10项:');
-for (let i = 0; i < 10; i++) {
-  console.log(\`fib(\${i}) = \${fibonacci(i)}\`);
-}
+// Generate example code based on package name
+const generateExampleCode = (packageName: string): string => {
+  // Convert package name to a valid variable name
+  const variableName = packageName
+    .replace(/[@\/\-\.]/g, '_')
+    .replace(/^[0-9]/, '_$&') // Add underscore prefix if starts with number
+    .replace(/[^a-zA-Z0-9_]/g, ''); // Remove other invalid characters
 
-// 返回一个值
-const result = {
-  message: '代码执行成功！',
-  timestamp: new Date().toISOString(),
-  random: Math.random()
+  return `import ${variableName} from '${packageName}'
+
+console.log('${packageName} loaded:', ${variableName})`;
 };
-
-result;`;
 
 const JSExecutor: React.FC = () => {
+  const packageName = getPackageNameFromUrl();
+  const defaultCode = generateExampleCode(packageName);
+  
   const [code, setCode] = useState(defaultCode);
   const [output, setOutput] = useState('');
   const [error, setError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [executor] = useState(() => new JSExecutorEngine());
 
-  // 初始化执行引擎
+  // Initialize execution engine
   useEffect(() => {
     let isMounted = true;
 
@@ -59,10 +56,28 @@ const JSExecutor: React.FC = () => {
     };
   }, [executor]);
 
-  // 执行代码
+  // Listen for URL changes and update code example
+  useEffect(() => {
+    const handleUrlChange = () => {
+      const newPackageName = getPackageNameFromUrl();
+      const newCode = generateExampleCode(newPackageName);
+      setCode(newCode);
+      setOutput('');
+      setError(undefined);
+    };
+
+    // Listen for popstate events (browser back/forward)
+    window.addEventListener('popstate', handleUrlChange);
+
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+    };
+  }, []);
+
+  // Execute code
   const executeCode = useCallback(async () => {
     if (!executor.isReady()) {
-      setError('执行引擎尚未初始化');
+      setError('Execution engine is not initialized yet');
       return;
     }
 
@@ -81,16 +96,11 @@ const JSExecutor: React.FC = () => {
     }
   }, [code, executor]);
 
-  // 清空输出
+  // Clear output
   const clearOutput = useCallback(() => {
     setOutput('');
     setError(undefined);
   }, []);
-
-  // 重置所有状态
-  const resetAll = useCallback(() => {
-    clearOutput();
-  }, [clearOutput]);
 
   return (
     <div className="js-executor">
@@ -99,8 +109,6 @@ const JSExecutor: React.FC = () => {
           code={code}
           onChange={setCode}
           onExecute={executeCode}
-          onReset={resetAll}
-          onClear={clearOutput}
           isLoading={isLoading}
         />
         

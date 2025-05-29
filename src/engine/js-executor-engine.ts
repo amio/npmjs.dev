@@ -16,33 +16,33 @@ export class JSExecutorEngine {
       this.quickJSModule = await newQuickJSAsyncWASMModule();
       this.isInitialized = true;
     } catch (error) {
-      throw new Error(`QuickJS 初始化失败: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(`QuickJS initialization failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   async execute(code: string): Promise<ExecutionResult> {
     if (!this.quickJSModule || !this.isInitialized) {
-      throw new Error('执行引擎尚未初始化');
+      throw new Error('Execution engine is not initialized yet');
     }
 
     try {
       const runtime = this.quickJSModule.newRuntime();
       
-      // 设置运行时限制
+      // Set runtime limits
       runtime.setMemoryLimit(1024 * 640);
       runtime.setMaxStackSize(1024 * 320);
       
-      // 设置中断处理器防止无限循环
+      // Set interrupt handler to prevent infinite loops
       let interruptCycles = 0;
       runtime.setInterruptHandler(() => ++interruptCycles > 1024);
       
-      // 简单的模块加载器
+      // Simple module loader
       runtime.setModuleLoader(async (moduleName) => `export default 'module-${moduleName}'`);
 
       const vm = runtime.newContext();
       const logs: string[] = [];
 
-      // 设置 console.log 捕获
+      // Set up console.log capture
       const consoleLogHandle = vm.newFunction('log', (...args) => {
         const nativeArgs = args.map(arg => vm.dump(arg));
         logs.push(nativeArgs.join(' '));
@@ -52,22 +52,22 @@ export class JSExecutorEngine {
       vm.setProp(consoleHandle, 'log', consoleLogHandle);
       vm.setProp(vm.global, 'console', consoleHandle);
 
-      // 执行代码
+      // Execute code
       const result = await vm.evalCodeAsync(code);
       
       let output = '';
       
-      // 添加 console.log 输出
+      // Add console.log output
       if (logs.length > 0) {
-        output += '=== Console 输出 ===\n';
+        output += '=== Console Output ===\n';
         output += logs.join('\n') + '\n\n';
       }
 
-      // 处理执行结果
+      // Handle execution result
       if (result.error) {
         const errorMessage = vm.dump(result.error);
         
-        // 清理资源
+        // Clean up resources
         this.cleanup([consoleLogHandle, consoleHandle]);
         result.error.dispose();
         vm.dispose();
@@ -79,25 +79,25 @@ export class JSExecutorEngine {
       } else {
         const returnValue = vm.dump(result.value);
         if (returnValue !== undefined) {
-          output += '=== 返回值 ===\n';
+          output += '=== Return Value ===\n';
           output += typeof returnValue === 'object' 
             ? JSON.stringify(returnValue, null, 2)
             : String(returnValue);
         }
         
-        // 清理资源
+        // Clean up resources
         this.cleanup([consoleLogHandle, consoleHandle]);
         result.value.dispose();
         vm.dispose();
         
         return {
-          output: output || '代码执行完成，无输出'
+          output: output || 'Code executed successfully, no output'
         };
       }
     } catch (error) {
       return {
         output: '',
-        error: `执行错误: ${error instanceof Error ? error.message : String(error)}`
+        error: `Execution error: ${error instanceof Error ? error.message : String(error)}`
       };
     }
   }
@@ -107,7 +107,7 @@ export class JSExecutorEngine {
       try {
         handle?.dispose?.();
       } catch (e) {
-        // 忽略清理错误
+        // Ignore cleanup errors
       }
     });
   }
@@ -117,7 +117,7 @@ export class JSExecutorEngine {
   }
 
   dispose(): void {
-    // QuickJS WASM 模块的清理是自动的
+    // QuickJS WASM module cleanup is automatic
     this.quickJSModule = null;
     this.isInitialized = false;
   }
