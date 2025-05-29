@@ -2,7 +2,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --import tsx --test 'src/**/*.test.ts'"
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.20.0",
@@ -12,10 +13,12 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@types/node": "^22.15.24",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^4.5.0",
     "esbuild-wasm": "^0.25.4",
+    "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-wasm": "^3.4.1"
