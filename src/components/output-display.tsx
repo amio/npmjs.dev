@@ -1,19 +1,24 @@
 import React from 'react';
 import './output-display.css';
+import { LogEntry } from '../engine/js-executor-engine';
 
 export interface OutputDisplayProps {
-  output: string;
+  logs: LogEntry[];
+  returnValue?: string;
   error?: string;
   isLoading: boolean;
   onClear: () => void;
 }
 
 export const OutputDisplay: React.FC<OutputDisplayProps> = ({
-  output,
+  logs,
+  returnValue,
   error,
   isLoading,
   onClear
 }) => {
+  const hasContent = logs.length > 0 || returnValue || error;
+
   return (
     <div className="output-panel">
       <div className="panel-header">
@@ -31,13 +36,28 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
           </div>
         )}
         
-        {output && !error && (
-          <div className="success-output">
-            <pre>{output}</pre>
+        {!error && logs.length > 0 && (
+          <div className="console-output">
+            {logs.map((log, index) => (
+              <div key={`${log.timestamp}-${index}`} className={`log-entry log-${log.type}`}>
+                <div className="log-content">
+                  <pre>{log.content}</pre>
+                </div>
+              </div>
+            ))}
           </div>
         )}
         
-        {!output && !error && !isLoading && (
+        {!error && returnValue && (
+          <div className="return-value">
+            <div className="return-label">↳ Return Value</div>
+            <div className="return-content">
+              <pre>{returnValue}</pre>
+            </div>
+          </div>
+        )}
+        
+        {!hasContent && !isLoading && (
           <div className="placeholder">
             Click "Execute Code" button to run your JavaScript code
             <br />

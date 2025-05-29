@@ -1,7 +1,14 @@
 import { QuickJSAsyncWASMModule, newQuickJSAsyncWASMModule } from 'quickjs-emscripten';
 
+export interface LogEntry {
+  type: 'log' | 'error' | 'warn' | 'info';
+  content: string;
+  timestamp: number;
+}
+
 export interface ExecutionResult {
-  output: string;
+  logs: LogEntry[];
+  returnValue?: string;
   error?: string;
 }
 
@@ -40,63 +47,75 @@ export class JSExecutorEngine {
       runtime.setModuleLoader(async (moduleName) => `export default 'module-${moduleName}'`);
 
       const vm = runtime.newContext();
-      const logs: string[] = [];
+      const logs: LogEntry[] = [];
 
-      // Set up console.log capture
-      const consoleLogHandle = vm.newFunction('log', (...args) => {
-        const nativeArgs = args.map(arg => vm.dump(arg));
-        logs.push(nativeArgs.join(' '));
-      });
+      // Set up console methods capture
+      const createConsoleMethod = (type: 'log' | 'error' | 'warn' | 'info') => {
+        return vm.newFunction(type, (...args) => {
+          const nativeArgs = args.map(arg => vm.dump(arg));
+          const content = nativeArgs.map(arg => 
+            typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+          ).join(' ');
+          
+          logs.push({
+            type,
+            content,
+            timestamp: Date.now()
+          });
+        });
+      };
+
+      const consoleLogHandle = createConsoleMethod('log');
+      const consoleErrorHandle = createConsoleMethod('error');
+      const consoleWarnHandle = createConsoleMethod('warn');
+      const consoleInfoHandle = createConsoleMethod('info');
       
       const consoleHandle = vm.newObject();
       vm.setProp(consoleHandle, 'log', consoleLogHandle);
+      vm.setProp(consoleHandle, 'error', consoleErrorHandle);
+      vm.setProp(consoleHandle, 'warn', consoleWarnHandle);
+      vm.setProp(consoleHandle, 'info', consoleInfoHandle);
       vm.setProp(vm.global, 'console', consoleHandle);
 
       // Execute code
       const result = await vm.evalCodeAsync(code);
       
-      let output = '';
-      
-      // Add console.log output
-      if (logs.length > 0) {
-        output += '=== Console Output ===\n';
-        output += logs.join('\n') + '\n\n';
-      }
-
       // Handle execution result
       if (result.error) {
         const errorMessage = vm.dump(result.error);
         
         // Clean up resources
-        this.cleanup([consoleLogHandle, consoleHandle]);
+        this.cleanup([consoleLogHandle, consoleErrorHandle, consoleWarnHandle, consoleInfoHandle, consoleHandle]);
         result.error.dispose();
         vm.dispose();
         
         return {
-          output: output || '',
+          logs,
           error: errorMessage
         };
       } else {
         const returnValue = vm.dump(result.value);
+        let returnValueString: string | undefined;
+        
         if (returnValue !== undefined) {
-          output += '=== Return Value ===\n';
-          output += typeof returnValue === 'object' 
+          returnValueString = typeof returnValue === 'object' 
             ? JSON.stringify(returnValue, null, 2)
             : String(returnValue);
         }
         
         // Clean up resources
-        this.cleanup([consoleLogHandle, consoleHandle]);
+        this.cleanup([consoleLogHandle, consoleErrorHandle, consoleWarnHandle, consoleInfoHandle, consoleHandle]);
         result.value.dispose();
         vm.dispose();
         
         return {
-          output: output || 'Code executed successfully, no output'
+          logs,
+          returnValue: returnValueString
         };
       }
     } catch (error) {
       return {
-        output: '',
+        logs: [],
         error: `Execution error: ${error instanceof Error ? error.message : String(error)}`
       };
     }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CodeEditor } from './code-editor';
 import { OutputDisplay } from './output-display';
-import { JSExecutorEngine } from '../engine/js-executor-engine';
+import { JSExecutorEngine, LogEntry } from '../engine/js-executor-engine';
 import './js-executor.css';
 
 // Parse package name from URL
@@ -29,7 +29,8 @@ const JSExecutor: React.FC = () => {
   const defaultCode = generateExampleCode(packageName);
   
   const [code, setCode] = useState(defaultCode);
-  const [output, setOutput] = useState('');
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [returnValue, setReturnValue] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [executor] = useState(() => new JSExecutorEngine());
@@ -62,7 +63,8 @@ const JSExecutor: React.FC = () => {
       const newPackageName = getPackageNameFromUrl();
       const newCode = generateExampleCode(newPackageName);
       setCode(newCode);
-      setOutput('');
+      setLogs([]);
+      setReturnValue(undefined);
       setError(undefined);
     };
 
@@ -83,11 +85,13 @@ const JSExecutor: React.FC = () => {
 
     setIsLoading(true);
     setError(undefined);
-    setOutput('');
+    setLogs([]);
+    setReturnValue(undefined);
 
     try {
       const result = await executor.execute(code);
-      setOutput(result.output);
+      setLogs(result.logs);
+      setReturnValue(result.returnValue);
       setError(result.error);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -98,7 +102,8 @@ const JSExecutor: React.FC = () => {
 
   // Clear output
   const clearOutput = useCallback(() => {
-    setOutput('');
+    setLogs([]);
+    setReturnValue(undefined);
     setError(undefined);
   }, []);
 
@@ -113,7 +118,8 @@ const JSExecutor: React.FC = () => {
         />
         
         <OutputDisplay
-          output={output}
+          logs={logs}
+          returnValue={returnValue}
           error={error}
           isLoading={isLoading}
           onClear={clearOutput}

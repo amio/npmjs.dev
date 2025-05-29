@@ -79,6 +79,98 @@
   border-left: 4px solid #28a745;
 }
 
+/* Console Output Styles - RunKit inspired */
+.console-output {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.log-entry {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.log-entry:hover {
+  background: #f8f9fa;
+}
+
+.log-content {
+  flex: 1;
+}
+
+.log-content pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* Different log types */
+.log-log {
+  border-left-color: #007acc;
+  background: #f8fbff;
+}
+
+.log-error {
+  border-left-color: #d73a49;
+  background: #fff5f5;
+}
+
+.log-error .log-content pre {
+  color: #d73a49;
+}
+
+.log-warn {
+  border-left-color: #f66a0a;
+  background: #fff8f0;
+}
+
+.log-warn .log-content pre {
+  color: #f66a0a;
+}
+
+.log-info {
+  border-left-color: #0366d6;
+  background: #f1f8ff;
+}
+
+.log-info .log-content pre {
+  color: #0366d6;
+}
+
+/* Return value styling */
+.return-value {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f6f8fa;
+  border-radius: 6px;
+  border-left: 3px solid #28a745;
+}
+
+.return-label {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.return-content pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #28a745;
+  font-weight: 500;
+}
+
 .placeholder {
   text-align: center;
   color: #666;
