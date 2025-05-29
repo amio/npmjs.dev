@@ -19,6 +19,44 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
 }) => {
   const hasContent = logs.length > 0 || returnValue || error;
 
+  // Safely convert error to string for display
+  const formatError = (error: any): string => {
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (typeof error === 'object' && error !== null) {
+      // If it's an Error object or similar, try to get meaningful info
+      if (error.stack) {
+        return error.stack;
+      }
+      if (error.message) {
+        return error.message;
+      }
+      // Otherwise stringify the object
+      try {
+        return JSON.stringify(error, null, 2);
+      } catch {
+        return String(error);
+      }
+    }
+    return String(error);
+  };
+
+  // Safely convert log content to string for display
+  const formatLogContent = (content: any): string => {
+    if (typeof content === 'string') {
+      return content;
+    }
+    if (typeof content === 'object' && content !== null) {
+      try {
+        return JSON.stringify(content, null, 2);
+      } catch {
+        return String(content);
+      }
+    }
+    return String(content);
+  };
+
   return (
     <div className="output-panel">
       <div className="panel-header">
@@ -32,7 +70,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
         {error && (
           <div className="error-output">
             <h4>❌ Error Message</h4>
-            <pre>{error}</pre>
+            <pre>{formatError(error)}</pre>
           </div>
         )}
         
@@ -41,7 +79,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             {logs.map((log, index) => (
               <div key={`${log.timestamp}-${index}`} className={`log-entry log-${log.type}`}>
                 <div className="log-content">
-                  <pre>{log.content}</pre>
+                  <pre>{formatLogContent(log.content)}</pre>
                 </div>
               </div>
             ))}
@@ -52,7 +90,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
           <div className="return-value">
             <div className="return-label">↳ Return Value</div>
             <div className="return-content">
-              <pre>{returnValue}</pre>
+              <pre>{formatLogContent(returnValue)}</pre>
             </div>
           </div>
         )}

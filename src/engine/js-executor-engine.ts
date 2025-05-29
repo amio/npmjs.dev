@@ -82,7 +82,38 @@ export class JSExecutorEngine {
       
       // Handle execution result
       if (result.error) {
-        const errorMessage = vm.dump(result.error);
+        const errorData = vm.dump(result.error);
+        let errorMessage: string;
+        
+        // Ensure error is properly formatted as string
+        if (typeof errorData === 'string') {
+          errorMessage = errorData;
+        } else if (typeof errorData === 'object' && errorData !== null) {
+          // Construct a complete error message with name, message, and stack
+          let errorParts: string[] = [];
+          
+          // Add error name and message
+          if (errorData.name && errorData.message) {
+            errorParts.push(`${errorData.name}: ${errorData.message}`);
+          } else if (errorData.name) {
+            errorParts.push(errorData.name);
+          } else if (errorData.message) {
+            errorParts.push(errorData.message);
+          }
+          
+          // Add stack trace if available
+          if (errorData.stack) {
+            errorParts.push(errorData.stack);
+          }
+          
+          if (errorParts.length > 0) {
+            errorMessage = errorParts.join('\n');
+          } else {
+            errorMessage = JSON.stringify(errorData, null, 2);
+          }
+        } else {
+          errorMessage = String(errorData);
+        }
         
         // Clean up resources
         this.cleanup([consoleLogHandle, consoleErrorHandle, consoleWarnHandle, consoleInfoHandle, consoleHandle]);
