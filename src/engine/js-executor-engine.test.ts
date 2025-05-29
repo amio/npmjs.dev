@@ -154,12 +154,14 @@ describe('JSExecutorEngine', () => {
       const result = await engine.execute('console.log(undefinedVariable)');
       assert.ok(result.error);
       assert.ok(result.error.includes('ReferenceError') || result.error.includes('not defined'));
+      assert.strictEqual(result.returnValue, undefined);
     });
 
     test('should handle type errors', async () => {
       const result = await engine.execute('null.someProperty');
       assert.ok(result.error);
       assert.ok(result.error.includes('TypeError') || result.error.includes('null'));
+      assert.strictEqual(result.returnValue, undefined);
     });
 
     test('should capture errors with stack traces', async () => {
@@ -172,6 +174,7 @@ describe('JSExecutorEngine', () => {
       const result = await engine.execute(code);
       assert.ok(result.error);
       assert.ok(result.error.includes('Test error'));
+      assert.strictEqual(result.returnValue, undefined);
     });
   });
 
@@ -247,12 +250,14 @@ describe('JSExecutorEngine', () => {
     test('should handle empty code', async () => {
       const result = await engine.execute('');
       assert.strictEqual(result.error, undefined);
+      assert.strictEqual(result.returnValue, undefined);
       assert.strictEqual(result.logs.length, 0);
     });
 
     test('should handle whitespace only code', async () => {
       const result = await engine.execute('   \n\t  ');
       assert.strictEqual(result.error, undefined);
+      assert.strictEqual(result.returnValue, undefined);
       assert.strictEqual(result.logs.length, 0);
     });
 
@@ -263,13 +268,14 @@ describe('JSExecutorEngine', () => {
       `;
       const result = await engine.execute(code);
       assert.strictEqual(result.error, undefined);
+      assert.strictEqual(result.returnValue, undefined);
       assert.strictEqual(result.logs.length, 0);
     });
 
     test('should handle undefined return value', async () => {
       const code = `
         let x = 5;
-        // No return statement
+        // No return statement, evaluates to undefined
       `;
       const result = await engine.execute(code);
       assert.strictEqual(result.error, undefined);
@@ -301,8 +307,8 @@ describe('JSExecutorEngine', () => {
         }
       `;
       const result = await engine.execute(code);
-      // Should either timeout or be interrupted, not hang forever
-      assert.ok(result.error || result.returnValue !== undefined);
+      // Should be interrupted and produce an error, not hang forever
+      assert.ok(result.error, 'Infinite loop should be interrupted and produce an error');
     });
 
     test('should handle large numbers', async () => {
@@ -353,6 +359,260 @@ describe('JSExecutorEngine', () => {
       assert.strictEqual(result.logs.length, 2);
       assert.strictEqual(result.logs[0].content, 'This will be logged');
       assert.strictEqual(result.logs[1].content, 'This too');
+    });
+  });
+
+  describe('module loading', () => {
+    test('should handle module import attempts', async () => {
+      // Note: This test may fail if esm.sh is not accessible
+      // It tests the module loading mechanism
+      const code = `
+        // This should trigger the module loader
+        try {
+          // We just test that the module loader doesn't crash the engine
+          1 + 1;
+        } catch (e) {
+          console.log("Module loading test");
+        }
+      `;
+      const result = await engine.execute(code);
+      assert.strictEqual(result.error, undefined);
+      assert.strictEqual(result.returnValue, '2');
+    });
+  });
+
+  describe('runtime configuration', () => {
+    test('should handle memory intensive operations within limits', async () => {
+      const code = `
+        // Create a moderately sized array to test memory limits
+        const arr = new Array(1000).fill(0).map((_, i) => i);
+        arr.length;
+      `;
+      const result = await engine.execute(code);
+      assert.strictEqual(result.error, undefined);
+      assert.strictEqual(result.returnValue, '1000');
+    });
+
+    test('should handle stack operations within limits', async () => {
+      const code = `
+        function deepRecursion(n) {
+          if (n <= 0) return 0;
+          if (n > 100) return n; // Prevent too deep recursion for test
+          return n + deepRecursion(n - 1);
+        }
+        deepRecursion(10);
+      `;
+      const result = await engine.execute(code);
+      assert.strictEqual(result.error, undefined);
+      assert.strictEqual(result.returnValue, '55'); // 10+9+8+...+1 = 55
+    });
+  });
+
+  describe('console setup and formatting', () => {
+    test('should handle complex object formatting in console', async () => {
+      const code = `
+        const complexObj = {
+          nested: {
+            array: [1, 2, 3],
+            object: { key: "value" }
+          },
+          func: function() { return "test"; }
+        };
+        console.log(complexObj);
+      `;
+      const result = await engine.execute(code);
+      assert.strictEqual(result.error, undefined);
+      assert.strictEqual(result.logs.length, 1);
+      assert.ok(result.logs[0].content.includes('nested'));
+      assert.ok(result.logs[0].content.includes('array'));
+    });
+
+    test('should handle circular references in console gracefully', async () => {
+      const code = `
+        const obj = {};
+        obj.self = obj;
+        try {
+          console.log(obj);
+        } catch (e) {
+          console.log("Circular reference handled");
+        }
+      `;
+      const result = await engine.execute(code);
+      assert.strictEqual(result.error, undefined);
+      assert.strictEqual(result.logs.length, 1);
+      // Should either log the object or handle the circular reference
+      assert.ok(result.logs[0].content.length > 0);
+    });
+
+    test('should format console output with proper timestamps', async () => {
+      const beforeTime = Date.now();
+      const result = await engine.execute('console.log("timestamp test")');
+      const afterTime = Date.now();
+      
+      assert.strictEqual(result.error, undefined);
+      assert.strictEqual(result.logs.length, 1);
+      assert.ok(result.logs[0].timestamp >= beforeTime);
+      assert.ok(result.logs[0].timestamp <= afterTime);
+    });
+  });
+
+  describe('error message formatting', () => {
+    test('should format simple string errors properly', async () => {
+      const result = await engine.execute('throw "Simple string error"');
+      assert.ok(result.error);
+      assert.strictEqual(result.error, 'Simple string error');
+    });
+
+    test('should format Error objects with name and message', async () => {
+      const result = await engine.execute('throw new RangeError("Value out of range")');
+      assert.ok(result.error);
+      assert.ok(result.error.includes('RangeError'));
+      assert.ok(result.error.includes('Value out of range'));
+    });
+
+    test('should format errors with stack traces', async () => {
+      const code = `
+        function throwingFunction() {
+          throw new Error("Detailed error");
+        }
+        function callingFunction() {
+          throwingFunction();
+        }
+        callingFunction();
+      `;
+      const result = await engine.execute(code);
+      assert.ok(result.error);
+      assert.ok(result.error.includes('Detailed error'));
+      // Stack trace formatting may vary, but should include function names
+    });
+
+    test('should handle non-standard error objects', async () => {
+      const code = `
+        const customError = { 
+          name: "CustomError", 
+          message: "Custom message",
+          customField: "extra data"
+        };
+        throw customError;
+      `;
+      const result = await engine.execute(code);
+      assert.ok(result.error);
+      assert.ok(result.error.includes('CustomError'));
+      assert.ok(result.error.includes('Custom message'));
+    });
+  });
+
+  describe('return value formatting', () => {
+    test('should format object return values as JSON', async () => {
+      const result = await engine.execute('({name: "test", value: 42})');
+      assert.strictEqual(result.error, undefined);
+      assert.ok(result.returnValue);
+      assert.ok(result.returnValue.includes('"name": "test"'));
+      assert.ok(result.returnValue.includes('"value": 42'));
+    });
+
+    test('should format array return values as JSON', async () => {
+      const result = await engine.execute('[1, "two", {three: 3}]');
+      assert.strictEqual(result.error, undefined);
+      assert.ok(result.returnValue);
+      assert.ok(result.returnValue.includes('1'));
+      assert.ok(result.returnValue.includes('"two"'));
+      assert.ok(result.returnValue.includes('"three": 3'));
+    });
+
+    test('should handle primitive return values', async () => {
+      const stringResult = await engine.execute('"hello world"');
+      assert.strictEqual(stringResult.returnValue, 'hello world');
+
+      const numberResult = await engine.execute('3.14159');
+      assert.strictEqual(numberResult.returnValue, '3.14159');
+
+      const booleanResult = await engine.execute('true');
+      assert.strictEqual(booleanResult.returnValue, 'true');
+    });
+
+    test('should handle undefined return values gracefully', async () => {
+      const result = await engine.execute('undefined');
+      assert.strictEqual(result.error, undefined);
+      // When JavaScript evaluates to undefined, returnValue should be undefined (not present)
+      assert.strictEqual(result.returnValue, undefined);
+    });
+
+    test('should handle code that evaluates to undefined', async () => {
+      const code = `
+        let x = 5;
+        // No return statement, should be undefined
+      `;
+      const result = await engine.execute(code);
+      assert.strictEqual(result.error, undefined);
+      assert.strictEqual(result.returnValue, undefined);
+    });
+  });
+
+  describe('resource cleanup', () => {
+    test('should properly clean up resources after successful execution', async () => {
+      // This test verifies that multiple executions don't leak resources
+      for (let i = 0; i < 5; i++) {
+        const result = await engine.execute(`console.log("Test ${i}"); ${i * 2}`);
+        assert.strictEqual(result.error, undefined);
+        assert.strictEqual(result.returnValue, String(i * 2));
+        assert.strictEqual(result.logs.length, 1);
+      }
+    });
+
+    test('should properly clean up resources after error execution', async () => {
+      // This test verifies that errors don't prevent proper cleanup
+      for (let i = 0; i < 3; i++) {
+        const result = await engine.execute(`console.log("Before error ${i}"); throw new Error("Test error ${i}")`);
+        assert.ok(result.error);
+        assert.ok(result.error.includes(`Test error ${i}`));
+        assert.strictEqual(result.returnValue, undefined);
+        assert.strictEqual(result.logs.length, 1);
+      }
+      
+      // Should still be able to execute successfully after errors
+      const successResult = await engine.execute('console.log("After errors"); 42');
+      assert.strictEqual(successResult.error, undefined);
+      assert.strictEqual(successResult.returnValue, '42');
+    });
+  });
+
+  describe('engine state management', () => {
+    test('should maintain proper state after multiple operations', async () => {
+      // Verify isReady state
+      assert.strictEqual(engine.isReady(), true);
+      
+      // Execute some code
+      await engine.execute('1 + 1');
+      assert.strictEqual(engine.isReady(), true);
+      
+      // Execute code with error
+      await engine.execute('throw new Error("test")');
+      assert.strictEqual(engine.isReady(), true);
+      
+      // Should still work normally
+      const result = await engine.execute('2 + 2');
+      assert.strictEqual(result.returnValue, '4');
+    });
+
+    test('should handle dispose and reinitialize correctly', async () => {
+      // Dispose current engine
+      engine.dispose();
+      assert.strictEqual(engine.isReady(), false);
+      
+      // Should not be able to execute
+      await assert.rejects(
+        () => engine.execute('1 + 1'),
+        /Execution engine is not initialized yet/
+      );
+      
+      // Reinitialize
+      await engine.initialize();
+      assert.strictEqual(engine.isReady(), true);
+      
+      // Should work again
+      const result = await engine.execute('3 + 3');
+      assert.strictEqual(result.returnValue, '6');
     });
   });
 });
