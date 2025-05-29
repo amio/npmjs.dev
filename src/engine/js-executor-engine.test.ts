@@ -379,6 +379,168 @@ describe('JSExecutorEngine', () => {
       assert.strictEqual(result.error, undefined);
       assert.strictEqual(result.returnValue, '2');
     });
+
+    test('should correctly call asyncModuleLoader with different input types', () => {
+      // Test the asyncModuleLoader method indirectly by verifying resolveModuleUrl behavior
+      const resolveModuleUrl = (engine as any).resolveModuleUrl.bind(engine);
+      
+      // Verify package names get prefixed with esm.sh
+      assert.strictEqual(
+        resolveModuleUrl('react'),
+        'https://esm.sh/react'
+      );
+      
+      // Verify URLs pass through unchanged
+      assert.strictEqual(
+        resolveModuleUrl('https://cdn.skypack.dev/lodash'),
+        'https://cdn.skypack.dev/lodash'
+      );
+      
+      // Verify paths starting with slash get prefixed correctly
+      assert.strictEqual(
+        resolveModuleUrl('/react'),
+        'https://esm.sh/react'
+      );
+      
+      // Verify scoped packages starting with slash
+      assert.strictEqual(
+        resolveModuleUrl('/@types/node'),
+        'https://esm.sh/@types/node'
+      );
+    });
+
+    describe('resolveModuleUrl', () => {
+      test('should handle package names', () => {
+        // Access the private method for testing
+        const resolveModuleUrl = (engine as any).resolveModuleUrl.bind(engine);
+        
+        assert.strictEqual(
+          resolveModuleUrl('lodash'),
+          'https://esm.sh/lodash'
+        );
+        
+        assert.strictEqual(
+          resolveModuleUrl('lodash@4.17.21'),
+          'https://esm.sh/lodash@4.17.21'
+        );
+        
+        assert.strictEqual(
+          resolveModuleUrl('@types/node'),
+          'https://esm.sh/@types/node'
+        );
+      });
+
+      test('should handle HTTP URLs', () => {
+        const resolveModuleUrl = (engine as any).resolveModuleUrl.bind(engine);
+        
+        assert.strictEqual(
+          resolveModuleUrl('http://example.com/module.js'),
+          'http://example.com/module.js'
+        );
+        
+        assert.strictEqual(
+          resolveModuleUrl('http://localhost:3000/dist/bundle.js'),
+          'http://localhost:3000/dist/bundle.js'
+        );
+      });
+
+      test('should handle HTTPS URLs', () => {
+        const resolveModuleUrl = (engine as any).resolveModuleUrl.bind(engine);
+        
+        assert.strictEqual(
+          resolveModuleUrl('https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js'),
+          'https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js'
+        );
+        
+        assert.strictEqual(
+          resolveModuleUrl('https://esm.sh/react@18.2.0'),
+          'https://esm.sh/react@18.2.0'
+        );
+        
+        assert.strictEqual(
+          resolveModuleUrl('https://unpkg.com/vue@3.3.4/dist/vue.esm-browser.js'),
+          'https://unpkg.com/vue@3.3.4/dist/vue.esm-browser.js'
+        );
+      });
+
+      test('should handle paths starting with slash', () => {
+        const resolveModuleUrl = (engine as any).resolveModuleUrl.bind(engine);
+        
+        // Test /{package} format
+        assert.strictEqual(
+          resolveModuleUrl('/lodash'),
+          'https://esm.sh/lodash'
+        );
+        
+        assert.strictEqual(
+          resolveModuleUrl('/react@18.2.0'),
+          'https://esm.sh/react@18.2.0'
+        );
+        
+        // Test /@{namespace}/{package} format
+        assert.strictEqual(
+          resolveModuleUrl('/@types/node'),
+          'https://esm.sh/@types/node'
+        );
+        
+        assert.strictEqual(
+          resolveModuleUrl('/@angular/core@15.2.0'),
+          'https://esm.sh/@angular/core@15.2.0'
+        );
+        
+        // Test regular scoped packages starting with slash
+        assert.strictEqual(
+          resolveModuleUrl('/@babel/core'),
+          'https://esm.sh/@babel/core'
+        );
+        
+        // Test packages with sub-paths
+        assert.strictEqual(
+          resolveModuleUrl('/lodash/debounce'),
+          'https://esm.sh/lodash/debounce'
+        );
+        
+        // Test complex package paths
+        assert.strictEqual(
+          resolveModuleUrl('/@apollo/client/core'),
+          'https://esm.sh/@apollo/client/core'
+        );
+      });
+
+      test('should handle edge cases', () => {
+        const resolveModuleUrl = (engine as any).resolveModuleUrl.bind(engine);
+        
+        // Empty string should be treated as package name
+        assert.strictEqual(
+          resolveModuleUrl(''),
+          'https://esm.sh/'
+        );
+        
+        // Packages with special characters
+        assert.strictEqual(
+          resolveModuleUrl('@angular/core@15.2.0'),
+          'https://esm.sh/@angular/core@15.2.0'
+        );
+        
+        // Packages with subdirectories
+        assert.strictEqual(
+          resolveModuleUrl('lodash/debounce'),
+          'https://esm.sh/lodash/debounce'
+        );
+        
+        // Test edge case with just slash
+        assert.strictEqual(
+          resolveModuleUrl('/'),
+          'https://esm.sh//'
+        );
+        
+        // Test paths that don't match the pattern (no package name after slash)
+        assert.strictEqual(
+          resolveModuleUrl('/not-a-valid-package-path'),
+          'https://esm.sh/not-a-valid-package-path'
+        );
+      });
+    });
   });
 
   describe('runtime configuration', () => {

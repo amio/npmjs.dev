@@ -27,18 +27,33 @@ export class JSExecutorEngine {
     }
   }
 
-  private async asyncModuleLoader(moduleName: string, context?: any): Promise<string> {
-    console.log(333, `Loading module: ${moduleName}`, context);
+  private async asyncModuleLoader(moduleName: string): Promise<string> {
     try {
-      const response = await fetch(`https://esm.sh/${moduleName}`);
+      const moduleUrl = this.resolveModuleUrl(moduleName);
+      const response = await fetch(moduleUrl);
       if (!response.ok) {
-        throw new Error(`Failed to load module ${moduleName}: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to fetch ${moduleUrl}: ${response.status} ${response.statusText}`);
       }
-      const moduleCode = await response.text();
-      return moduleCode;
+      return await response.text();
     } catch (error) {
       throw new Error(`Error loading module ${moduleName}: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+
+  /** Resolve all module requests to https://esm.sh */
+  private resolveModuleUrl(moduleName: string): string {
+    // Check if it's already a full HTTP/HTTPS URL
+    if (moduleName.startsWith('http://') || moduleName.startsWith('https://')) {
+      return moduleName;
+    }
+
+    // Check if it starts with `/{package}` or `/@{namespace}/{package}`
+    if (moduleName.match(/^\/(@?[\w-]+\/)?[\w-]+/)) {
+      return `https://esm.sh${moduleName}`;
+    }
+
+    // Otherwise, treat it as a package name
+    return `https://esm.sh/${moduleName}`;
   }
 
   private configureRuntime(runtime: any): void {
