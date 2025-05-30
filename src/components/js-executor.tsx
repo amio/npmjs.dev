@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { CodeEditor } from './code-editor'
 import { OutputDisplay } from './output-display'
 import { JSExecutorEngine, LogEntry } from '../engine/js-executor-engine'
-import './js-executor.css'
 
 // Parse package name from URL
 const getPackageNameFromUrl = (): string => {
@@ -21,7 +20,7 @@ const generateExampleCode = (packageName: string): string => {
 
   return `import ${variableName} from '${packageName}'
 
-console.log('${packageName} loaded:', ${variableName})`
+console.log("${packageName}\'s methods:", Object.keys(${variableName}))`
 }
 
 const JSExecutor: React.FC = () => {
@@ -100,16 +99,9 @@ const JSExecutor: React.FC = () => {
     }
   }, [code, executor])
 
-  // Clear output
-  const clearOutput = useCallback(() => {
-    setLogs([])
-    setReturnValue(undefined)
-    setError(undefined)
-  }, [])
-
   return (
-    <div className="js-executor">
-      <div className="main-content">
+    <div className="js-executor width-limited">
+      <div className="runner-column">
         <CodeEditor code={code} onChange={setCode} onExecute={executeCode} isLoading={isLoading} />
 
         <OutputDisplay
@@ -117,8 +109,11 @@ const JSExecutor: React.FC = () => {
           returnValue={returnValue}
           error={error}
           isLoading={isLoading}
-          onClear={clearOutput}
         />
+      </div>
+      <div className="doc-column">
+        <h3>Documentation</h3>
+        <p>Here you can find information about the package and its usage.</p>
       </div>
     </div>
   )

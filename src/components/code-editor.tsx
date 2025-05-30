@@ -1,5 +1,4 @@
 import React, { useRef } from 'react'
-import './code-editor.css'
 
 export interface CodeEditorProps {
   code: string
@@ -35,30 +34,25 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
 
   return (
     <div className="editor-panel">
-      <div className="panel-header">
-        <h3>Code Editor</h3>
+      <textarea
+        className="code-textarea"
+        ref={textareaRef}
+        autoFocus
+        value={code}
+        onChange={e => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Write your JavaScript code here..."
+        spellCheck={false}
+      />
+      <div className="editor-footer">
+        <span className="editor-info">
+          Press Tab to indent | Lines: {code.split('\n').length} | Characters: {code.length}
+        </span>
+
         <div className="editor-controls">
           <button onClick={onExecute} disabled={isLoading} className="btn btn-primary">
-            {isLoading ? 'Executing...' : '▶ Execute Code'}
+            {isLoading ? 'Running...' : '▶ Run'}
           </button>
-        </div>
-      </div>
-
-      <div className="editor-container">
-        <textarea
-          ref={textareaRef}
-          autoFocus
-          value={code}
-          onChange={e => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="code-textarea"
-          placeholder="Write your JavaScript code here..."
-          spellCheck={false}
-        />
-        <div className="editor-info">
-          <span>
-            Press Tab to indent | Lines: {code.split('\n').length} | Characters: {code.length}
-          </span>
         </div>
       </div>
     </div>
