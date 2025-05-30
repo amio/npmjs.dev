@@ -3,7 +3,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --import tsx --test 'src/**/*.test.ts'"
+    "test": "node --import tsx --test 'src/**/*.test.ts'",
+    "format": "prettier --write .",
+    "lint": "prettier --check .",
+    "pretest": "npm run lint"
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.20.0",
@@ -18,6 +21,7 @@
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^4.5.0",
     "esbuild-wasm": "^0.25.4",
+    "prettier": "^3.5.3",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",

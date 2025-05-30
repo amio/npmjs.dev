@@ -1,91 +1,91 @@
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    height: 100vh;
-    overflow: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .header {
-    padding: 16px;
-    background: #f5f5f5;
-    border-bottom: 1px solid #e0e0e0;
-    text-align: center;
+  padding: 16px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center;
 }
 
 .header h2 {
-    margin: 0;
-    color: #333;
+  margin: 0;
+  color: #333;
 }
 
 #app {
-    display: flex;
-    height: 100vh;
+  display: flex;
+  height: 100vh;
 }
 
 #editor {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid #ccc;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #ccc;
 }
 
 #editor textarea {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 16px;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 14px;
-    line-height: 1.4;
-    resize: none;
-    background: #f8f8f8;
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 16px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  resize: none;
+  background: #f8f8f8;
 }
 
 #terminal {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: #1e1e1e;
-    color: #d4d4d4;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+  color: #d4d4d4;
 }
 
 .terminal-header {
-    padding: 8px 16px;
-    background: #2d2d30;
-    border-bottom: 1px solid #3e3e42;
-    font-size: 12px;
-    font-weight: bold;
+  padding: 8px 16px;
+  background: #2d2d30;
+  border-bottom: 1px solid #3e3e42;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .terminal-content {
-    flex: 1;
-    padding: 16px;
-    overflow-y: auto;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 12px;
-    line-height: 1.4;
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .log-entry {
-    margin: 2px 0;
+  margin: 2px 0;
 }
 
 .log-info {
-    color: #569cd6;
+  color: #569cd6;
 }
 
 .log-error {
-    color: #f44747;
+  color: #f44747;
 }
 
 .log-result {
-    color: #4ec9b0;
-    font-weight: bold;
+  color: #4ec9b0;
+  font-weight: bold;
 }

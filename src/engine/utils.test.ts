@@ -1,6 +1,6 @@
-import assert from 'node:assert';
-import { test, describe } from 'node:test';
-import { parseModuleDeps } from './utils';
+import assert from 'node:assert'
+import { test, describe } from 'node:test'
+import { parseModuleDeps } from './utils'
 
 describe('parseModuleDeps', () => {
   test('should parse all import syntax variations', () => {
@@ -12,8 +12,8 @@ describe('parseModuleDeps', () => {
       import React2, { useState, useEffect } from 'react2';
       import { baz } from "double-quotes";
       import { qux } from \`template-quotes\`;
-    `;
-    const result = parseModuleDeps(code);
+    `
+    const result = parseModuleDeps(code)
     assert.deepStrictEqual(result.sort(), [
       './utils',
       'double-quotes',
@@ -21,9 +21,9 @@ describe('parseModuleDeps', () => {
       'polyfill',
       'react',
       'react2',
-      'template-quotes'
-    ]);
-  });
+      'template-quotes',
+    ])
+  })
 
   test('should parse all export syntax variations', () => {
     const code = `
@@ -37,16 +37,10 @@ describe('parseModuleDeps', () => {
       export const foo = 'bar';
       export function baz() {}
       export default something;
-    `;
-    const result = parseModuleDeps(code);
-    assert.deepStrictEqual(result.sort(), [
-      './helpers',
-      'double-quotes',
-      'source-module',
-      'template-quotes',
-      'utils'
-    ]);
-  });
+    `
+    const result = parseModuleDeps(code)
+    assert.deepStrictEqual(result.sort(), ['./helpers', 'double-quotes', 'source-module', 'template-quotes', 'utils'])
+  })
 
   test('should handle mixed imports/exports and deduplication', () => {
     const code = `
@@ -56,10 +50,10 @@ describe('parseModuleDeps', () => {
       export { utils } from './utils';
       export * from './helpers';
       export { bar } from 'lodash';
-    `;
-    const result = parseModuleDeps(code);
-    assert.deepStrictEqual(result.sort(), ['./helpers', './utils', 'lodash', 'react']);
-  });
+    `
+    const result = parseModuleDeps(code)
+    assert.deepStrictEqual(result.sort(), ['./helpers', './utils', 'lodash', 'react'])
+  })
 
   test('should handle edge cases and special scenarios', () => {
     const code = `
@@ -82,8 +76,8 @@ describe('parseModuleDeps', () => {
       // Scoped packages
       import { Component } from '@company/ui-kit';
       export { utils } from '@org/utils';
-    `;
-    const result = parseModuleDeps(code);
+    `
+    const result = parseModuleDeps(code)
     assert.deepStrictEqual(result.sort(), [
       '../../grandparent',
       '../parent',
@@ -92,29 +86,29 @@ describe('parseModuleDeps', () => {
       '@org/utils',
       'another-module',
       'commented-module',
-      'multi-line-module'
-    ]);
-  });
+      'multi-line-module',
+    ])
+  })
 
   test('should handle empty and invalid code gracefully', () => {
     // Empty code
-    assert.deepStrictEqual(parseModuleDeps(''), []);
-    
+    assert.deepStrictEqual(parseModuleDeps(''), [])
+
     // Code without imports/exports
     const noImports = `
       const foo = 'bar';
       function baz() { return 'hello'; }
-    `;
-    assert.deepStrictEqual(parseModuleDeps(noImports), []);
-    
+    `
+    assert.deepStrictEqual(parseModuleDeps(noImports), [])
+
     // Mixed valid and invalid syntax
     const mixedCode = `
       import { valid } from 'valid-module';
       import { invalid from 'invalid-syntax';
       export { another } from 'another-valid';
-    `;
-    assert.deepStrictEqual(parseModuleDeps(mixedCode).sort(), ['another-valid', 'valid-module']);
-  });
+    `
+    assert.deepStrictEqual(parseModuleDeps(mixedCode).sort(), ['another-valid', 'valid-module'])
+  })
 
   test('should handle comprehensive real-world scenario', () => {
     const code = `
@@ -133,8 +127,8 @@ describe('parseModuleDeps', () => {
       };
       
       export default component;
-    `;
-    const result = parseModuleDeps(code);
+    `
+    const result = parseModuleDeps(code)
     assert.deepStrictEqual(result.sort(), [
       '../api/client',
       './date-utils',
@@ -142,7 +136,7 @@ describe('parseModuleDeps', () => {
       './validators',
       '@shared/constants',
       'lodash',
-      'react'
-    ]);
-  });
-});
+      'react',
+    ])
+  })
+})

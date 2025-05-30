@@ -1,10 +1,10 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
 
-import JSExecutor from "./components/js-executor";
+import JSExecutor from './components/js-executor'
 
-const root = createRoot(document.getElementById("root")!);
+const root = createRoot(document.getElementById('root')!)
 
 root.render(
   <StrictMode>
@@ -15,4 +15,4 @@ root.render(
       <JSExecutor />
     </div>
   </StrictMode>
-);
+)

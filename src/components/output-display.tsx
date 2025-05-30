@@ -1,61 +1,55 @@
-import React from 'react';
-import './output-display.css';
-import { LogEntry } from '../engine/js-executor-engine';
+import React from 'react'
+import './output-display.css'
+import { LogEntry } from '../engine/js-executor-engine'
 
 export interface OutputDisplayProps {
-  logs: LogEntry[];
-  returnValue?: string;
-  error?: string;
-  isLoading: boolean;
-  onClear: () => void;
+  logs: LogEntry[]
+  returnValue?: string
+  error?: string
+  isLoading: boolean
+  onClear: () => void
 }
 
-export const OutputDisplay: React.FC<OutputDisplayProps> = ({
-  logs,
-  returnValue,
-  error,
-  isLoading,
-  onClear
-}) => {
-  const hasContent = logs.length > 0 || returnValue || error;
+export const OutputDisplay: React.FC<OutputDisplayProps> = ({ logs, returnValue, error, isLoading, onClear }) => {
+  const hasContent = logs.length > 0 || returnValue || error
 
   // Safely convert error to string for display
   const formatError = (error: any): string => {
     if (typeof error === 'string') {
-      return error;
+      return error
     }
     if (typeof error === 'object' && error !== null) {
       // If it's an Error object or similar, try to get meaningful info
       if (error.stack) {
-        return error.stack;
+        return error.stack
       }
       if (error.message) {
-        return error.message;
+        return error.message
       }
       // Otherwise stringify the object
       try {
-        return JSON.stringify(error, null, 2);
+        return JSON.stringify(error, null, 2)
       } catch {
-        return String(error);
+        return String(error)
       }
     }
-    return String(error);
-  };
+    return String(error)
+  }
 
   // Safely convert log content to string for display
   const formatLogContent = (content: any): string => {
     if (typeof content === 'string') {
-      return content;
+      return content
     }
     if (typeof content === 'object' && content !== null) {
       try {
-        return JSON.stringify(content, null, 2);
+        return JSON.stringify(content, null, 2)
       } catch {
-        return String(content);
+        return String(content)
       }
     }
-    return String(content);
-  };
+    return String(content)
+  }
 
   return (
     <div className="output-panel">
@@ -65,7 +59,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
           Clear Output
         </button>
       </div>
-      
+
       <div className="output-container">
         {error && (
           <div className="error-output">
@@ -73,7 +67,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             <pre>{formatError(error)}</pre>
           </div>
         )}
-        
+
         {!error && logs.length > 0 && (
           <div className="console-output">
             {logs.map((log, index) => (
@@ -85,7 +79,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             ))}
           </div>
         )}
-        
+
         {!error && returnValue && (
           <div className="return-value">
             <div className="return-label">↳ Return Value</div>
@@ -94,7 +88,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             </div>
           </div>
         )}
-        
+
         {!hasContent && !isLoading && (
           <div className="placeholder">
             Click "Execute Code" button to run your JavaScript code
@@ -102,7 +96,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             <small>Supports console.log output and return value display</small>
           </div>
         )}
-        
+
         {isLoading && (
           <div className="loading">
             <div className="spinner"></div>
@@ -111,5 +105,5 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}
