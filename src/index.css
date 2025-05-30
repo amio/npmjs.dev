@@ -221,83 +221,34 @@ div {
 .console-output {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
 .log-entry {
-  display: flex;
-  align-items: flex-start;
-  padding: 0.5rem;
-  border-radius: 0.5em;
-  border: 1px solid var(--border-color);
-  border-left-width: 4px;
-  transition: all 0.2s ease;
+  margin-bottom: 0.25rem;
 }
 
-.log-entry:hover {
-  background: white;
-}
-
-.log-details {
-  width: 100%;
-}
-.log-details[open] .log-summary {
-  opacity: 0.1;
-}
-.log-summary {
-  cursor: pointer;
-  list-style: none;
-  padding: 0;
+.log-entry pre {
   margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.log-summary::details-marker {
-  display: none;
-}
-
-.log-content {
-  flex: 1;
-  margin-top: 0.5rem;
-}
-
-.log-content pre {
+  padding: 0.25rem 0;
   white-space: pre-wrap;
   font-family: var(--font-family-mono);
+  font-size: var(--font-size-s);
 }
 
 /* Different log types */
-.log-log {
-  border-left-color: #007acc;
-  background: #f8fbff;
+.log-log pre {
+  color: #007acc;
 }
 
-.log-error {
-  border-left-color: #d73a49;
-  background: #fff5f5;
-}
-
-.log-error .log-content pre {
+.log-error pre {
   color: #d73a49;
 }
 
-.log-warn {
-  border-left-color: #f66a0a;
-  background: #fff8f0;
-}
-
-.log-warn .log-content pre {
+.log-warn pre {
   color: #f66a0a;
 }
 
-.log-info {
-  border-left-color: #0366d6;
-  background: #f1f8ff;
-}
-
-.log-info .log-content pre {
+.log-info pre {
   color: #0366d6;
 }
 

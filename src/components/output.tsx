@@ -48,13 +48,6 @@ export const Output: React.FC<OutputDisplayProps> = ({ logs, error, isLoading })
     return String(content)
   }
 
-  // Get a summary (first line) of log content
-  const getLogSummary = (content: any): string => {
-    const fullContent = formatLogContent(content)
-    const firstLine = fullContent.split('\n')[0]
-    return firstLine.length > 80 ? firstLine.substring(0, 80) + '...' : firstLine
-  }
-
   return (
     <div className="output-panel">
       {error && (
@@ -68,12 +61,7 @@ export const Output: React.FC<OutputDisplayProps> = ({ logs, error, isLoading })
         <div className="console-output">
           {logs.map((log, index) => (
             <div key={`${log.timestamp}-${index}`} className={`log-entry log-${log.type}`}>
-              <details className="log-details">
-                <summary className="log-summary">{getLogSummary(log.content)}</summary>
-                <div className="log-content">
-                  <pre>{formatLogContent(log.content)}</pre>
-                </div>
-              </details>
+              <pre>{formatLogContent(log.content)}</pre>
             </div>
           ))}
         </div>
