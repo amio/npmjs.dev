@@ -30,6 +30,14 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
         }
       }, 0)
     }
+
+    // Handle CMD+Enter (macOS) or Ctrl+Enter (Windows) to execute code
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      if (!isLoading) {
+        onExecute()
+      }
+    }
   }
 
   return (
@@ -46,7 +54,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
       />
       <div className="editor-footer">
         <span className="editor-info">
-          Press Tab to indent | Lines: {code.split('\n').length} | Characters: {code.length}
+          Press Tab to indent | CMD/Ctrl+Enter to run | Lines: {code.split('\n').length} | Characters: {code.length}
         </span>
 
         <div className="editor-controls">
