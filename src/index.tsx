@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 
-import JSExecutor from './components/js-executor'
+import App from './components/app'
 
 const root = createRoot(document.getElementById('root')!)
 
@@ -14,7 +14,7 @@ root.render(
           <h2>NPM Package Fiddler</h2>
         </div>
       </div>
-      <JSExecutor />
+      <App />
     </div>
   </StrictMode>
 )

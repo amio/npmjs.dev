@@ -1,33 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { CodeEditor } from './code-editor'
 import { OutputDisplay } from './output-display'
+import { Readme } from './readme'
 import { JSExecutorEngine, LogEntry } from '../engine/js-executor-engine'
 
-// Parse package name from URL
-const getPackageNameFromUrl = (): string => {
-  const url = window.location.href
-  const match = url.match(/\/package\/([^\/\?#]+)/)
-  return match ? match[1] : 'lodash' // Default to lodash as example
-}
-
-// Generate example code based on package name
-const generateExampleCode = (packageName: string): string => {
-  // Convert package name to a valid variable name
-  const variableName = packageName
-    .replace(/[@\/\-\.]/g, '_')
-    .replace(/^[0-9]/, '_$&') // Add underscore prefix if starts with number
-    .replace(/[^a-zA-Z0-9_]/g, '') // Remove other invalid characters
-
-  return `import ${variableName} from '${packageName}'
-
-console.log("${packageName}\'s methods:", Object.keys(${variableName}))`
-}
-
-const JSExecutor: React.FC = () => {
+const App: React.FC = () => {
   const packageName = getPackageNameFromUrl()
-  const defaultCode = generateExampleCode(packageName)
+  const initialCode = generateExampleCode(packageName)
 
-  const [code, setCode] = useState(defaultCode)
+  const [code, setCode] = useState(initialCode)
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [returnValue, setReturnValue] = useState<string | undefined>()
   const [error, setError] = useState<string | undefined>()
@@ -112,11 +93,30 @@ const JSExecutor: React.FC = () => {
         />
       </div>
       <div className="doc-column">
-        <h3>Documentation</h3>
-        <p>Here you can find information about the package and its usage.</p>
+        <Readme package={packageName} />
       </div>
     </div>
   )
 }
 
-export default JSExecutor
+// Parse package name from URL
+const getPackageNameFromUrl = (): string => {
+  const url = window.location.href
+  const match = url.match(/\/package\/([^\/\?#]+)/)
+  return match ? match[1] : 'lodash' // Default to lodash as example
+}
+
+// Generate example code based on package name
+const generateExampleCode = (packageName: string): string => {
+  // Convert package name to a valid variable name
+  const variableName = packageName
+    .replace(/[@\/\-\.]/g, '_')
+    .replace(/^[0-9]/, '_$&') // Add underscore prefix if starts with number
+    .replace(/[^a-zA-Z0-9_]/g, '') // Remove other invalid characters
+
+  return `import ${variableName} from '${packageName}'
+
+console.log("${packageName}\'s methods:", Object.keys(${variableName}))`
+}
+
+export default App
