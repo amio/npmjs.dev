@@ -5,8 +5,11 @@
 :root {
   --primary-color: #007acc;
   --secondary-color: #6c757d;
+
   --background-color: #fafafa;
   --text-color: #333;
+  --text-color-dim: #777;
+
   --border-color: #e0e0e0;
   --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
@@ -18,7 +21,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: system-ui, sans-serif;
+  font-family: BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
   font-size: var(--font-size);
@@ -28,7 +31,7 @@ div {
   box-sizing: border-box;
 }
 
-.container {
+.app-container {
   display: flex;
   flex-direction: column;
 }
@@ -38,26 +41,30 @@ div {
   border-bottom: 1px solid var(--border-color);
 }
 
-.header {
+.app-header {
   padding: 16px;
-  height: 90px;
-  display: flex;
-  place-items: center;
+  height: 100px;
+  place-items: center flex-start;
+
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    line-height: 2.6rem;
+    color: var(--text-color);
+  }
+
+  div {
+    color: var(--text-color-dim);
+    font-size: var(--font-size-s);
+  }
 }
 
-.header h2 {
-  margin: 0;
-  color: #333;
-}
-
-
 /* ================================== */
-/* =      JS EXECUTOR STYLES        = */
+/* =      APP LAYOUT STYLES         = */
 /* ================================== */
 
-.js-executor {
+.app-main {
   flex: 1;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   display: flex;
   flex-direction: row;
   gap: 1rem;
@@ -81,10 +88,7 @@ div {
 }
 
 .doc-column {
-  flex: 1;
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 4px;
+  width: 50%;
 }
 
 
@@ -93,7 +97,6 @@ div {
 /* ================================== */
 
 .editor-panel {
-  flex: 1;
   background: white;
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
@@ -103,7 +106,7 @@ div {
 
 .code-textarea {
   field-sizing: content;
-  min-height: 200px;
+  min-height: 30vh;
   border: none;
   background: transparent;
   padding: 1rem;
@@ -356,7 +359,6 @@ div {
 /* ================================== */
 
 .readme {
-  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -377,7 +379,6 @@ div {
 .readme-content {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem;
 }
 
 .readme-loading {

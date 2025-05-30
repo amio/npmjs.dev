@@ -8,7 +8,7 @@ export interface OutputDisplayProps {
   isLoading: boolean
 }
 
-export const OutputDisplay: React.FC<OutputDisplayProps> = ({ logs, returnValue, error, isLoading }) => {
+export const Output: React.FC<OutputDisplayProps> = ({ logs, returnValue, error, isLoading }) => {
   const hasContent = logs.length > 0 || returnValue || error
 
   // Safely convert error to string for display

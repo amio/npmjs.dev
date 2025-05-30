@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { CodeEditor } from './code-editor'
-import { OutputDisplay } from './output-display'
+import { Output } from './output'
 import { Readme } from './readme'
 import { JSExecutorEngine, LogEntry } from '../engine/js-executor-engine'
 
@@ -81,19 +81,21 @@ const App: React.FC = () => {
   }, [code, executor])
 
   return (
-    <div className="js-executor width-limited">
-      <div className="runner-column">
-        <CodeEditor code={code} onChange={setCode} onExecute={executeCode} isLoading={isLoading} />
-
-        <OutputDisplay
-          logs={logs}
-          returnValue={returnValue}
-          error={error}
-          isLoading={isLoading}
-        />
+    <div className="app-container">
+      <div className="header-row">
+        <div className="app-header width-limited">
+          <h1>npmjs:dev</h1>
+          <div>Run and explore NPM packages in browser</div>
+        </div>
       </div>
-      <div className="doc-column">
-        <Readme package={packageName} />
+      <div className="app-main width-limited">
+        <div className="runner-column">
+          <CodeEditor code={code} onChange={setCode} onExecute={executeCode} isLoading={isLoading} />
+          <Output logs={logs} returnValue={returnValue} error={error} isLoading={isLoading} />
+        </div>
+        <div className="doc-column">
+          <Readme package={packageName} />
+        </div>
       </div>
     </div>
   )
