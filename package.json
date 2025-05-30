@@ -15,7 +15,8 @@
     "marked-react": "^3.0.0",
     "quickjs-emscripten": "^0.31.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-placeholder-loading": "^0.5.30"
   },
   "devDependencies": {
     "@types/node": "^22.15.24",

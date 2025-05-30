@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import PlaceholderLoading from 'react-placeholder-loading'
 import Markdown from 'marked-react'
 
 export interface ReadmeProps {
@@ -62,8 +63,10 @@ export function Readme({ package: packageName }: ReadmeProps) {
       <div className="readme-content">
         {isLoading && (
           <div className="readme-loading">
-            <div className="spinner"></div>
-            <span>Loading README...</span>
+            <PlaceholderLoading shape="rect" width="100%" height="3vh" />
+            <PlaceholderLoading shape="rect" width="100%" height="3vh" />
+            <PlaceholderLoading shape="rect" width="100%" height="3vh" />
+            <PlaceholderLoading shape="rect" width="100%" height="24vh" />
           </div>
         )}
 
