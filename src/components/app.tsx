@@ -10,7 +10,6 @@ const App: React.FC = () => {
 
   const [code, setCode] = useState(initialCode)
   const [logs, setLogs] = useState<LogEntry[]>([])
-  const [returnValue, setReturnValue] = useState<string | undefined>()
   const [error, setError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [executor] = useState(() => new JSExecutorEngine())
@@ -44,7 +43,6 @@ const App: React.FC = () => {
       const newCode = generateExampleCode(newPackageName)
       setCode(newCode)
       setLogs([])
-      setReturnValue(undefined)
       setError(undefined)
     }
 
@@ -66,12 +64,11 @@ const App: React.FC = () => {
     setIsLoading(true)
     setError(undefined)
     setLogs([])
-    setReturnValue(undefined)
 
     try {
       const result = await executor.execute(code)
+      console.log('Execution result:', result)
       setLogs(result.logs)
-      setReturnValue(result.returnValue)
       setError(result.error)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
@@ -91,7 +88,7 @@ const App: React.FC = () => {
       <div className="app-main width-limited">
         <div className="runner-column">
           <CodeEditor code={code} onChange={setCode} onExecute={executeCode} isLoading={isLoading} />
-          <Output logs={logs} returnValue={returnValue} error={error} isLoading={isLoading} />
+          <Output logs={logs} error={error} isLoading={isLoading} />
         </div>
         <div className="doc-column">
           <Readme package={packageName} />

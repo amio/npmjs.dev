@@ -3,13 +3,12 @@ import { LogEntry } from '../engine/js-executor-engine'
 
 export interface OutputDisplayProps {
   logs: LogEntry[]
-  returnValue?: string
   error?: string
   isLoading: boolean
 }
 
-export const Output: React.FC<OutputDisplayProps> = ({ logs, returnValue, error, isLoading }) => {
-  const hasContent = logs.length > 0 || returnValue || error
+export const Output: React.FC<OutputDisplayProps> = ({ logs, error, isLoading }) => {
+  const hasContent = logs.length > 0 || error
 
   // Safely convert error to string for display
   const formatError = (error: any): string => {
@@ -70,9 +69,7 @@ export const Output: React.FC<OutputDisplayProps> = ({ logs, returnValue, error,
           {logs.map((log, index) => (
             <div key={`${log.timestamp}-${index}`} className={`log-entry log-${log.type}`}>
               <details className="log-details">
-                <summary className="log-summary">
-                  {getLogSummary(log.content)}
-                </summary>
+                <summary className="log-summary">{getLogSummary(log.content)}</summary>
                 <div className="log-content">
                   <pre>{formatLogContent(log.content)}</pre>
                 </div>
@@ -82,18 +79,9 @@ export const Output: React.FC<OutputDisplayProps> = ({ logs, returnValue, error,
         </div>
       )}
 
-      {!error && returnValue && (
-        <div className="return-value">
-          <div className="return-label">↳ Return Value</div>
-          <div className="return-content">
-            <pre>{formatLogContent(returnValue)}</pre>
-          </div>
-        </div>
-      )}
-
       {!hasContent && !isLoading && (
         <div className="placeholder">
-          <small>Supports console.log output and return value display</small>
+          <small>Supports console.log output display</small>
         </div>
       )}
 

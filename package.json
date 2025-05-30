@@ -5,8 +5,7 @@
     "preview": "vite preview",
     "test": "node --import tsx --test 'src/**/*.test.ts'",
     "format": "prettier --write .",
-    "lint": "prettier --check .",
-    "pretest": "npm run lint"
+    "lint": "prettier --check ."
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.4",

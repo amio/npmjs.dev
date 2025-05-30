@@ -191,6 +191,18 @@ describe('JSExecutorEngine', () => {
       assert.strictEqual(result.logs.length, 1)
       assert.ok(result.logs[0].content.length > 0)
     })
+
+    test('should handle import statements with console output', async () => {
+      const result = await engine.execute(`
+        import moo from 'moo';
+        console.log("This is a log");
+        const parser = moo.compile({word: /[a-z]+/});
+        const result = parser.reset("hello world").next().value;
+        123;
+      `)
+      assert.strictEqual(result.logs.length, 1)
+      assert.strictEqual(result.logs[0].content, 'This is a log')
+    })
   })
 
   describe('Error Handling', () => {
