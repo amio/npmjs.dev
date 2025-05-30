@@ -88,7 +88,7 @@ export function Readme({ package: packageName }: ReadmeProps) {
 
         {!isLoading && !error && markdownContent && (
           <div className="markdown-content">
-            <Markdown>{markdownContent}</Markdown>
+            <Markdown gfm>{markdownContent}</Markdown>
           </div>
         )}
 

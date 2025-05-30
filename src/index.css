@@ -120,6 +120,16 @@ div {
   flex-direction: column;
   overflow: hidden;
 
+  /* Styles for CodeMirror Editor */
+  .editor-block {
+    font-size: var(--font-size-s);
+    padding: 0.6rem;
+
+    .cm-focused {
+      outline: none;
+    }
+  }
+
   .code-textarea {
     field-sizing: content;
     min-height: 30vh;
@@ -433,6 +443,7 @@ div {
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
     color: #1a1a1a;
+    font-family: var(--font-family-mono);
   }
   h1:first-child {
     margin-top: 0;
