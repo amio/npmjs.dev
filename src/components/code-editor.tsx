@@ -1,4 +1,5 @@
 import React, { useRef } from 'react'
+import { Toggle } from './ui-elements'
 
 export interface CodeEditorProps {
   code: string
@@ -54,13 +55,15 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
       />
       <div className="editor-footer">
         <span className="editor-info">
-          Press Tab to indent | CMD/Ctrl+Enter to run | Lines: {code.split('\n').length} | Characters: {code.length}
+          Lines: {code.split('\n').length} | Characters: {code.length}
         </span>
 
         <div className="editor-controls">
-          <button onClick={onExecute} disabled={isLoading} className="btn btn-primary">
-            {isLoading ? 'Running...' : '▶ Run'}
-          </button>
+          <Toggle active={!isLoading} fallback={<span className='running'>Running</span>}>
+            <button onClick={onExecute} disabled={isLoading} className="ghost-button">
+              <span><kbd>⌘</kbd><kbd>⏎</kbd></span>Run
+            </button>
+          </Toggle>
         </div>
       </div>
     </div>
