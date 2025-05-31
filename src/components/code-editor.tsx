@@ -24,21 +24,20 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
       }
     }
 
-    window.addEventListener('keydown', handleGlobalKeyDown)
+    window.addEventListener('keydown', handleGlobalKeyDown, { capture: true })
     return () => {
-      window.removeEventListener('keydown', handleGlobalKeyDown)
+      window.removeEventListener('keydown', handleGlobalKeyDown, { capture: true })
     }
   }, [onExecute, isLoading])
 
   return (
     <div className="editor-panel">
-      <label className="editor-block">
+      <div className="editor-block">
         <CodeMirror
           autoFocus
+          height="30vh"
           value={code}
           theme={githubLight}
-          minHeight="calc(40vh - 150px)"
-          maxHeight="calc(60vh - 150px)"
           extensions={[javascript()]}
           onChange={onChange}
           basicSetup={{
@@ -46,9 +45,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
             lineNumbers: false,
             foldGutter: false,
             searchKeymap: false,
+            autocompletion: false,
           }}
         />
-      </label>
+      </div>
       <div className="editor-footer">
         <span className="editor-info">
           Lines: {code.split('\n').length} | Characters: {code.length}
