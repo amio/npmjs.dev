@@ -2,7 +2,7 @@ import React from 'react'
 import { Toggle } from './ui-elements'
 
 import CodeMirror from '@uiw/react-codemirror'
-import { githubLight } from '@uiw/codemirror-theme-github'
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
 import { javascript } from '@codemirror/lang-javascript'
 
 export interface CodeEditorProps {
@@ -35,7 +35,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
       <div className="editor-block">
         <CodeMirror
           autoFocus
-          height="30vh"
+          height="36vh"
           value={code}
           theme={githubLight}
           extensions={[javascript()]}
