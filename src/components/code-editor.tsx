@@ -2,7 +2,7 @@ import React from 'react'
 import { Toggle } from './ui-elements'
 
 import CodeMirror from '@uiw/react-codemirror'
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
+import { githubLight } from '@uiw/codemirror-theme-github'
 import { javascript } from '@codemirror/lang-javascript'
 
 export interface CodeEditorProps {
@@ -55,15 +55,16 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
         </span>
 
         <div className="editor-controls">
-          <Toggle active={!isLoading} fallback={<span className="running">Running</span>}>
-            <button onClick={onExecute} disabled={isLoading} className="ghost-button">
-              <span>
-                <kbd>⌘</kbd>
-                <kbd>⏎</kbd>
-              </span>
-              Run
-            </button>
+          <Toggle active={isLoading} >
+            <div className="spinner" />
           </Toggle>
+          <button onClick={onExecute} disabled={isLoading} className="ghost-button">
+            <span>
+              <kbd>⌘</kbd>
+              <kbd>⏎</kbd>
+            </span>
+            Run
+          </button>
         </div>
       </div>
     </div>

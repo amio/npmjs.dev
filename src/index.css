@@ -39,9 +39,10 @@ div {
 }
 
 .remixicon {
-  height: 1.4em;
-  width: 1.4em;
+  height: 1.2em;
+  width: 1.2em;
   line-height: 1;
+  vertical-align: text-top;
 }
 
 /* ================================== */
@@ -181,7 +182,7 @@ div {
   .editor-controls {
     display: flex;
     flex-direction: row;
-    gap: 0.5rem;
+    gap: 0.2em;
     place-items: center;
 
     button {
@@ -319,10 +320,10 @@ div {
 }
 
 .spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #007acc;
+  width: 1.3em;
+  height: 1.3em;
+  border: 2px solid transparent;
+  border-top: 3px solid #808080;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -526,6 +527,11 @@ div {
   .ghost-button:focus {
     outline: none;
     box-shadow: 0 0 0 2px var(--button-focus-color);
+  }
+  .ghost-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: none;
   }
 
   kbd {

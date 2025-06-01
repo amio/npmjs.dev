@@ -1,5 +1,6 @@
 import React from 'react'
 import { LogEntry } from '../engine/js-executor-engine'
+import { RiErrorWarningLine } from '@remixicon/react'
 
 export interface OutputDisplayProps {
   logs: LogEntry[]
@@ -7,9 +8,7 @@ export interface OutputDisplayProps {
   isLoading: boolean
 }
 
-export const Output: React.FC<OutputDisplayProps> = ({ logs, error, isLoading }) => {
-  const hasContent = logs.length > 0 || error
-
+export const Output: React.FC<OutputDisplayProps> = ({ logs, error }) => {
   // Safely convert error to string for display
   const formatError = (error: any): string => {
     if (typeof error === 'string') {
@@ -52,7 +51,7 @@ export const Output: React.FC<OutputDisplayProps> = ({ logs, error, isLoading })
     <div className="output-panel">
       {error && (
         <div className="error-output">
-          <h4>❌ Error Message</h4>
+          <h4><RiErrorWarningLine /> Error Message</h4>
           <pre>{formatError(error)}</pre>
         </div>
       )}
@@ -64,19 +63,6 @@ export const Output: React.FC<OutputDisplayProps> = ({ logs, error, isLoading })
               <pre>{formatLogContent(log.content)}</pre>
             </div>
           ))}
-        </div>
-      )}
-
-      {!hasContent && !isLoading && (
-        <div className="placeholder">
-          <small>Supports console.log output display</small>
-        </div>
-      )}
-
-      {isLoading && (
-        <div className="loading">
-          <div className="spinner"></div>
-          Executing code...
         </div>
       )}
     </div>
