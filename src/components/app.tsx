@@ -5,7 +5,7 @@ import { Readme } from './readme'
 import { JSExecutorEngine, LogEntry } from '../engine/js-executor-engine'
 
 const App: React.FC = () => {
-  const packageName = getPackageNameFromUrl()
+  const packageName = getPackageNameFromUrl(window.location.href)
   const initialCode = generateExampleCode(packageName)
 
   const [code, setCode] = useState(initialCode)
@@ -39,7 +39,7 @@ const App: React.FC = () => {
   // Listen for URL changes and update code example
   useEffect(() => {
     const handleUrlChange = () => {
-      const newPackageName = getPackageNameFromUrl()
+      const newPackageName = getPackageNameFromUrl(window.location.href)
       const newCode = generateExampleCode(newPackageName)
       setCode(newCode)
       setLogs([])
@@ -99,14 +99,29 @@ const App: React.FC = () => {
 }
 
 // Parse package name from URL
-const getPackageNameFromUrl = (): string => {
-  const url = window.location.href
-  const match = url.match(/\/package\/([^\/\?#]+)/)
-  return match ? match[1] : 'lodash' // Default to lodash as example
+export const getPackageNameFromUrl = (url: string): string => {
+  try {
+    const urlObj = new URL(url.startsWith('http') ? url : `http://dummy.com${url}`)
+    const pathParts = urlObj.pathname.split('/').filter(Boolean)
+    
+    if (pathParts.length === 0) {
+      return 'lodash' // Default to lodash as example
+    }
+    
+    // Handle scoped packages like @babel/core
+    if (pathParts[0].startsWith('@') && pathParts.length > 1) {
+      return `${pathParts[0]}/${pathParts[1]}`
+    }
+    
+    // Handle regular packages
+    return pathParts[0]
+  } catch (e) {
+    return 'lodash' // Default to lodash if URL parsing fails
+  }
 }
 
 // Generate example code based on package name
-const generateExampleCode = (packageName: string): string => {
+export const generateExampleCode = (packageName: string): string => {
   // Convert package name to a valid variable name
   const variableName = packageName
     .replace(/[@\/\-\.]/g, '_')
