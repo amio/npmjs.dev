@@ -91,10 +91,10 @@ div {
       padding-left: 8vw;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
 
       .output-panel {
         overflow-y: auto;
+        margin: 2rem 0;
       }
     }
 
@@ -203,7 +203,6 @@ div {
 
 .output-panel {
   flex: 1;
-  border-radius: 8px;
   display: flex;
   flex-direction: column;
   font-size: var(--font-size-s);
@@ -239,8 +238,15 @@ div {
 }
 
 .console-output {
-  display: flex;
-  flex-direction: column;
+  height: 100%;
+  overflow: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.log-entry {
+  padding: 0.2rem 0.5rem;
 }
 
 .log-entry + .log-entry {
@@ -417,17 +423,17 @@ div {
     font-family: var(--font-family-mono);
   }
   h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 0.5rem;
   }
   h2 {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 0.3rem;
   }
   h3 {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
   p {
     margin-bottom: 1rem;
