@@ -133,7 +133,7 @@ describe('generateExampleCode', () => {
 
   test('should remove invalid characters', () => {
     const result = generateExampleCode('package@#$%')
-    assert.strictEqual(result, "import package from 'package@#$%'")
+    assert.strictEqual(result, "import package from 'package'")
   })
 
   test('should handle empty package name', () => {
