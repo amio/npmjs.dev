@@ -1,5 +1,5 @@
 import React from 'react'
-import { LogEntry } from '../engine/js-executor-engine'
+import { LogEntry } from '../engine/quickjs-executor'
 import { RiErrorWarningLine } from '@remixicon/react'
 
 export interface OutputDisplayProps {

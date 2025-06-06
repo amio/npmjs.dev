@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { CodeEditor } from './code-editor'
 import { Output } from './output'
 import { Readme } from './readme'
-import { JSExecutorEngine, LogEntry } from '../engine/js-executor-engine'
+import { JSExecutorEngine, LogEntry } from '../engine/quickjs-executor'
 
 const App: React.FC = () => {
   const packageName = getPackageNameFromUrl(window.location.href)

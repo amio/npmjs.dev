@@ -1,6 +1,6 @@
 import assert from 'node:assert'
 import { test, describe, beforeEach, afterEach } from 'node:test'
-import { JSExecutorEngine } from './js-executor-engine'
+import { JSExecutorEngine } from './quickjs-executor'
 
 describe('JSExecutorEngine', () => {
   let engine: JSExecutorEngine
