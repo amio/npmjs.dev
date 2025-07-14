@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { CodeEditor } from './code-editor'
 import { Output } from './output'
 import { Readme } from './readme'
-import { JSExecutorEngine, LogEntry } from '../engine/quickjs-executor'
+import { JSExecutorEngine } from '../engine/quickjs-executor'
+import { BrowserExecutorEngine } from '../engine/browser-executor'
+import { LogEntry, ExecutorType } from '../engine/types'
 
 const App: React.FC = () => {
   const packageName = getPackageNameFromUrl(window.location.href)
@@ -12,15 +14,23 @@ const App: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [error, setError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
-  const [executor] = useState(() => new JSExecutorEngine())
+  const [executorType, setExecutorType] = useState<ExecutorType>('quickjs')
+  
+  const [quickjsExecutor] = useState(() => new JSExecutorEngine())
+  const [browserExecutor] = useState(() => new BrowserExecutorEngine())
 
-  // Initialize execution engine
+  const currentExecutor = executorType === 'quickjs' ? quickjsExecutor : browserExecutor
+
+  // Initialize execution engines
   useEffect(() => {
     let isMounted = true
 
-    const initializeEngine = async () => {
+    const initializeEngines = async () => {
       try {
-        await executor.initialize()
+        await Promise.all([
+          quickjsExecutor.initialize(),
+          browserExecutor.initialize()
+        ])
       } catch (err) {
         if (isMounted) {
           setError(err instanceof Error ? err.message : String(err))
@@ -28,13 +38,14 @@ const App: React.FC = () => {
       }
     }
 
-    initializeEngine()
+    initializeEngines()
 
     return () => {
       isMounted = false
-      executor.dispose()
+      quickjsExecutor.dispose()
+      browserExecutor.dispose()
     }
-  }, [executor])
+  }, [quickjsExecutor, browserExecutor])
 
   // Listen for URL changes and update code example
   useEffect(() => {
@@ -56,7 +67,7 @@ const App: React.FC = () => {
 
   // Execute code
   const executeCode = useCallback(async () => {
-    if (!executor.isReady()) {
+    if (!currentExecutor.isReady()) {
       setError('Execution engine is not initialized yet')
       return
     }
@@ -66,7 +77,7 @@ const App: React.FC = () => {
     setLogs([])
 
     try {
-      const result = await executor.execute(code)
+      const result = await currentExecutor.execute(code)
       console.log('Execution result:', result)
       setLogs(result.logs)
       setError(result.error)
@@ -75,7 +86,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false)
     }
-  }, [code, executor])
+  }, [code, currentExecutor])
 
   return (
     <div className="app-container">
@@ -87,7 +98,14 @@ const App: React.FC = () => {
       </div>
       <div className="app-main width-limited">
         <div className="runner-column">
-          <CodeEditor code={code} onChange={setCode} onExecute={executeCode} isLoading={isLoading} />
+          <CodeEditor 
+            code={code} 
+            onChange={setCode} 
+            onExecute={executeCode} 
+            isLoading={isLoading}
+            executorType={executorType}
+            onExecutorTypeChange={setExecutorType}
+          />
           <Output logs={logs} error={error} isLoading={isLoading} />
         </div>
         <div className="doc-column">

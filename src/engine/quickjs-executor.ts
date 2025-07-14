@@ -1,16 +1,5 @@
 import { QuickJSAsyncWASMModule, newQuickJSAsyncWASMModule } from 'quickjs-emscripten'
-
-export interface LogEntry {
-  type: 'log' | 'error' | 'warn' | 'info'
-  content: string
-  timestamp: number
-}
-
-export interface ExecutionResult {
-  logs: LogEntry[]
-  returnValue?: string
-  error?: string
-}
+import { LogEntry, ExecutionResult } from './types'
 
 export class JSExecutorEngine {
   private quickJSModule: QuickJSAsyncWASMModule | null = null

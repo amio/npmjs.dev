@@ -172,11 +172,8 @@ div {
     flex-direction: row;
   }
 
-  .editor-info {
-    flex: 1;
-    display: flex;
-    place-items: center;
-    margin: 0 1em;
+  .executor-switch {
+    margin-left: 0.5em;
   }
 
   .editor-controls {
@@ -184,6 +181,7 @@ div {
     flex-direction: row;
     gap: 0.2em;
     place-items: center;
+    width: 100%;
 
     button {
       height: 100%;
@@ -549,3 +547,70 @@ div {
     margin-left: 0.4em;
   }
 }
+
+/* ================================== */
+/* =      RADIO SWITCH STYLES       = */
+/* ================================== */
+
+.radio-switch {
+  display: flex;
+  position: relative;
+  padding: 0.2em;
+}
+
+.radio-switch-option {
+  position: relative;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  flex: 1;
+}
+
+.radio-switch-option::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: -2px;
+  right: -2px;
+  bottom: 1px;
+  background: white;
+  border-radius: 1em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: -1;
+}
+
+.radio-switch-option:has(input:checked)::before {
+  opacity: 1;
+}
+
+.radio-switch-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radio-switch-option span {
+  padding: 0.4em 0.6em;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-color-dim);
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  border-radius: 4px;
+}
+
+.radio-switch-option.active span,
+.radio-switch-option:hover span {
+  color: var(--text-color);
+}
+
+.executor-switch {
+  margin-right: auto;
+}
+
+/* ================================== */

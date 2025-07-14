@@ -1,5 +1,6 @@
 import React from 'react'
-import { Toggle } from './ui-elements'
+import { Toggle, RadioSwitch, RadioSwitchOption } from './ui-elements'
+import { ExecutorType } from '../engine/types'
 
 import CodeMirror from '@uiw/react-codemirror'
 import { githubLight } from '@uiw/codemirror-theme-github'
@@ -24,9 +25,18 @@ export interface CodeEditorProps {
   onChange: (code: string) => void
   onExecute: () => void
   isLoading: boolean
+  executorType: ExecutorType
+  onExecutorTypeChange: (type: ExecutorType) => void
 }
 
-export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecute, isLoading }) => {
+export const CodeEditor: React.FC<CodeEditorProps> = ({ 
+  code, 
+  onChange, 
+  onExecute, 
+  isLoading, 
+  executorType, 
+  onExecutorTypeChange 
+}) => {
   // register keydown listener on window to handle CMD+Enter globally
   React.useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -43,6 +53,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
       window.removeEventListener('keydown', handleGlobalKeyDown, { capture: true })
     }
   }, [onExecute, isLoading])
+
+  const executorOptions: RadioSwitchOption[] = [
+    { value: 'quickjs', label: 'QuickJS' },
+    { value: 'browser', label: 'Browser' }
+  ]
 
   return (
     <div className="editor-panel">
@@ -64,11 +79,14 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
         />
       </div>
       <div className="editor-footer">
-        <span className="editor-info">
-          Lines: {code.split('\n').length} | Characters: {code.length}
-        </span>
-
         <div className="editor-controls">
+          <div className="executor-switch" title="Select execution engine">
+            <RadioSwitch 
+              options={executorOptions}
+              value={executorType}
+              onChange={(value) => onExecutorTypeChange(value as ExecutorType)}
+            />
+          </div>
           <Toggle active={isLoading} >
             <div className="spinner" />
           </Toggle>
