@@ -213,6 +213,16 @@ div {
   box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
+.error-output {
+  padding: 0 1rem;
+  h4 {
+    color: #d73a49;
+  }
+  pre {
+    white-space: pre-wrap;
+  }
+}
+
 .console-output {
   height: 100%;
   overflow: auto;
