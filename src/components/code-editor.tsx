@@ -5,6 +5,20 @@ import CodeMirror from '@uiw/react-codemirror'
 import { githubLight } from '@uiw/codemirror-theme-github'
 import { javascript } from '@codemirror/lang-javascript'
 
+// Detect if user is on Mac
+const isMac = (() => {
+  if (typeof navigator !== 'undefined') {
+    // Use modern API if available
+    if ('userAgentData' in navigator && navigator.userAgentData) {
+      const userAgentData = navigator.userAgentData as any
+      return userAgentData.platform?.toLowerCase().includes('mac') || false
+    }
+    // Fallback to userAgent
+    return navigator.userAgent.toLowerCase().includes('mac')
+  }
+  return false
+})()
+
 export interface CodeEditorProps {
   code: string
   onChange: (code: string) => void
@@ -60,8 +74,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, onExecut
           </Toggle>
           <button onClick={onExecute} disabled={isLoading} className="ghost-button">
             <span>
-              <kbd>⌘</kbd>
-              <kbd>⏎</kbd>
+              <kbd>{isMac ? '⌘' : 'Ctrl'}</kbd>
+              <kbd>{isMac ? '⏎' : 'Enter'}</kbd>
             </span>
             Run
           </button>

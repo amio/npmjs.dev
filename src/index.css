@@ -530,6 +530,7 @@ div {
     border-radius: 0.3em;
     background-color: var(--kbd-bg, rgba(0, 0, 0, 0.05));
     border: 1px solid var(--kbd-border, rgba(0, 0, 0, 0.2));
+    color: var(--kbd-text, rgba(0, 0, 0, 0.5));
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
     display: inline-flex;
     place-items: center;
@@ -537,6 +538,8 @@ div {
     line-height: 1.2em;
     height: 1.6em;
     min-width: 1.6em;
+    padding: 0 0.2em;
+    box-sizing: border-box;
     text-align: center;
     white-space: nowrap;
     text-transform: uppercase;
