@@ -94,7 +94,7 @@ div {
 
       .output-panel {
         overflow-y: auto;
-        margin: 2rem 0 4rem 0;
+        margin: 2rem 0;
       }
     }
 
@@ -321,6 +321,23 @@ div {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+.app-footer {
+  padding-bottom: 1rem;
+  font-size: 13px;
+  text-align: center;
+  color: var(--text-color-dim, #888);
+
+  a {
+    color: var(--primary-color);
+    opacity: 0.8;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  a:hover {
+    text-decoration: underline;
   }
 }
 

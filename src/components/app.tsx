@@ -107,6 +107,9 @@ const App: React.FC = () => {
             onExecutorTypeChange={setExecutorType}
           />
           <Output logs={logs} error={error} isLoading={isLoading} />
+          <footer className="app-footer">
+            <a href="https://github.com/amio/npmjs.dev" target="_blank" rel="noopener noreferrer">npmjs.dev</a> is not affiliated with npm, Inc.
+          </footer>
         </div>
         <div className="doc-column">
           <Readme package={packageName} />
