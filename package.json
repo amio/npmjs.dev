@@ -24,7 +24,7 @@
     "@types/node": "^22.15.24",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
-    "@vitejs/plugin-react": "^4.5.0",
+    "@vitejs/plugin-react": "^5.0.2",
     "esbuild-wasm": "^0.25.4",
     "prettier": "^3.5.3",
     "tsx": "^4.19.4",
