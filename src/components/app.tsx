@@ -15,7 +15,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [executorType, setExecutorType] = useState<ExecutorType>('quickjs')
-  
+
   const [quickjsExecutor] = useState(() => new JSExecutorEngine())
   const [browserExecutor] = useState(() => new BrowserExecutorEngine())
 
@@ -98,10 +98,10 @@ const App: React.FC = () => {
       </div>
       <div className="app-main width-limited">
         <div className="runner-column">
-          <CodeEditor 
-            code={code} 
-            onChange={setCode} 
-            onExecute={executeCode} 
+          <CodeEditor
+            code={code}
+            onChange={setCode}
+            onExecute={executeCode}
             isLoading={isLoading}
             executorType={executorType}
             onExecutorTypeChange={setExecutorType}
@@ -124,16 +124,16 @@ export const getPackageNameFromUrl = (url: string): string => {
   try {
     const urlObj = new URL(url.startsWith('http') ? url : `http://dummy.com${url}`)
     const pathParts = urlObj.pathname.split('/').filter(Boolean)
-    
+
     if (pathParts.length === 0) {
       return 'lodash' // Default to lodash as example
     }
-    
+
     // Handle scoped packages like @babel/core
     if (pathParts[0].startsWith('@') && pathParts.length > 1) {
       return `${pathParts[0]}/${pathParts[1]}`
     }
-    
+
     // Handle regular packages
     return pathParts[0]
   } catch (e) {
@@ -149,14 +149,14 @@ export const generateExampleCode = (packageName: string): string => {
     .replace(/[^a-zA-Z0-9@\/\-\._]/g, '') // Remove truly invalid characters like #$%
     .replace(/@+$/, '') // Remove trailing @ symbols
     .replace(/\/+$/, '') // Remove trailing slashes
-  
+
   // Convert package name to a valid variable name
   const variableName = cleanedPackageName
     .replace(/[@\/\-\.]/g, '_')
     .replace(/^[0-9]/, '_$&') // Add underscore prefix if starts with number
     .replace(/[^a-zA-Z0-9_]/g, '') // Remove other invalid characters
 
-  return `import ${variableName} from '${cleanedPackageName}'`
+  return `import ${variableName} from '${cleanedPackageName}'\n\nconsole.log(\n  Object.keys(${variableName})\n)`
 }
 
 export default App

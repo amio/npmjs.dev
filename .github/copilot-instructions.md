@@ -146,34 +146,6 @@ src/
    }
    ```
 
-### Package Management
-
-1. **URL-based package routing**
-   ```typescript
-   // Support URLs like: /lodash, /@babel/core, /react@18.0.0
-   const getPackageFromUrl = (url: string) => {
-     const pathParts = new URL(url).pathname.split('/').filter(Boolean)
-
-     if (pathParts[0]?.startsWith('@') && pathParts.length > 1) {
-       return `${pathParts[0]}/${pathParts[1]}` // Scoped package
-     }
-
-     return pathParts[0] || 'lodash' // Default package
-   }
-   ```
-
-2. **Dynamic code generation**
-   ```typescript
-   // Generate example code based on package name
-   const generateExampleCode = (packageName: string) => {
-     const variableName = packageName
-       .replace(/[@\/\-\.]/g, '_')
-       .replace(/^[0-9]/, '_$&')
-
-     return `import ${variableName} from '${packageName}'`
-   }
-   ```
-
 ### Testing Guidelines
 
 1. **Unit Tests** for utilities and pure functions
