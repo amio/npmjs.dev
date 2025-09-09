@@ -163,9 +163,13 @@ export class JSExecutorEngine {
         result.error.dispose()
         vm.dispose()
 
+        const normalizedError = /stack overflow/i.test(errorMessage)
+          ? 'Execution error: Maximum call stack size exceeded'
+          : errorMessage
+
         return {
           logs,
-          error: errorMessage,
+          error: normalizedError,
         }
       } else {
         const returnValueString = this.formatReturnValue(vm, result.value)
