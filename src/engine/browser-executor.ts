@@ -13,7 +13,7 @@ export class BrowserExecutorEngine {
   addPackage(packageName: string, version?: string): void {
     const versionSuffix = version ? `@${version}` : ''
     this.packageImportMap[packageName] = `https://esm.sh/${packageName}${versionSuffix}`
-    
+
     // Add support for submodules (e.g., 'lodash/debounce')
     if (!packageName.endsWith('/')) {
       this.packageImportMap[`${packageName}/`] = `https://esm.sh/${packageName}${versionSuffix}/`
@@ -26,10 +26,10 @@ export class BrowserExecutorEngine {
   private generateImportMap(): string {
     const importMap = {
       imports: {
-        ...this.packageImportMap
-      }
+        ...this.packageImportMap,
+      },
     }
-    
+
     return JSON.stringify(importMap, null, 2)
   }
 
@@ -44,7 +44,7 @@ export class BrowserExecutorEngine {
 
     while ((match = importRegex.exec(code)) !== null) {
       const packageName = match[1]
-      
+
       // Skip relative imports and URLs
       if (packageName.startsWith('./') || packageName.startsWith('../') || packageName.startsWith('http')) {
         continue
@@ -84,7 +84,7 @@ export class BrowserExecutorEngine {
       this.iframe = document.createElement('iframe')
       this.iframe.style.display = 'none'
       this.iframe.setAttribute('sandbox', 'allow-scripts')
-      
+
       // Use srcdoc to avoid cross-origin issues
       const iframeDocument = `
         <!DOCTYPE html>
@@ -197,7 +197,7 @@ export class BrowserExecutorEngine {
         </body>
         </html>
       `
-      
+
       this.iframe.srcdoc = iframeDocument
       document.body.appendChild(this.iframe)
 
@@ -216,7 +216,7 @@ export class BrowserExecutorEngine {
         }
 
         window.addEventListener('message', handleMessage)
-        
+
         // Fallback timeout
         setTimeout(() => {
           window.removeEventListener('message', handleMessage)
@@ -226,7 +226,9 @@ export class BrowserExecutorEngine {
 
       this.isInitialized = true
     } catch (error) {
-      throw new Error(`Browser executor initialization failed: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(
+        `Browser executor initialization failed: ${error instanceof Error ? error.message : String(error)}`
+      )
     }
   }
 
@@ -234,7 +236,7 @@ export class BrowserExecutorEngine {
     try {
       // Parse imports and update import map
       this.parseAndAddImports(code)
-      
+
       // Reinitialize iframe with updated import map if new packages were added
       if (!this.isInitialized || Object.keys(this.packageImportMap).length > 0) {
         await this.reinitializeIframe()
@@ -252,7 +254,7 @@ export class BrowserExecutorEngine {
             resolve({
               logs: event.data.result.logs || [],
               returnValue: event.data.result.returnValue,
-              error: event.data.result.error
+              error: event.data.result.error,
             })
           }
         }
@@ -260,10 +262,13 @@ export class BrowserExecutorEngine {
         window.addEventListener('message', handleMessage)
 
         // Send execution request
-        this.iframe!.contentWindow?.postMessage({
-          type: 'execute-code',
-          code: code
-        }, '*')
+        this.iframe!.contentWindow?.postMessage(
+          {
+            type: 'execute-code',
+            code: code,
+          },
+          '*'
+        )
 
         // Timeout after 30 seconds
         setTimeout(() => {
@@ -274,7 +279,7 @@ export class BrowserExecutorEngine {
     } catch (error) {
       return {
         logs: [],
-        error: `Browser execution error: ${error instanceof Error ? error.message : String(error)}`
+        error: `Browser execution error: ${error instanceof Error ? error.message : String(error)}`,
       }
     }
   }
@@ -287,10 +292,10 @@ export class BrowserExecutorEngine {
     if (this.iframe && this.iframe.parentNode) {
       this.iframe.parentNode.removeChild(this.iframe)
     }
-    
+
     this.iframe = null
     this.isInitialized = false
-    
+
     // Initialize with new import map
     await this.initialize()
   }

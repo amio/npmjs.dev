@@ -11,6 +11,7 @@
 ## Architecture
 
 ### Tech Stack
+
 - **Frontend**: React 19+ with TypeScript
 - **Build Tool**: Vite with React plugin
 - **Execution Engines**:
@@ -49,6 +50,7 @@
 ### Code Style & Patterns
 
 1. **TypeScript First**
+
    ```typescript
    // Use explicit types for props and state
    interface ComponentProps {
@@ -67,6 +69,7 @@
    ```
 
 2. **React Patterns**
+
    ```typescript
    // Use functional components with hooks
    const MyComponent: React.FC<Props> = ({ prop1, prop2 }) => {
@@ -122,6 +125,7 @@ src/
 ### Commenting Guidelines
 
 - Use JSDoc for public APIs and complex functions
+
   ```typescript
   /**
    * Executes the provided JavaScript code.
@@ -149,6 +153,7 @@ src/
 ### Testing Guidelines
 
 1. **Unit Tests** for utilities and pure functions
+
    ```typescript
    // Use Node.js built-in test runner
    import { test, describe } from 'node:test'
@@ -175,6 +180,7 @@ src/
 ## Resources
 
 When in doubt, refer to the following resources for latest documentation and best practices:
+
 - [QuickJS Documentation](https://github.com/justjake/quickjs-emscripten)
 - [WebContainer API](https://webcontainers.io/api)
 - [React 19 Documentation](https://react.dev/)

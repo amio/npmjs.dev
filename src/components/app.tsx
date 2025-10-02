@@ -5,12 +5,18 @@ import { Readme } from './readme'
 import { JSExecutorEngine } from '../engine/quickjs-executor'
 import { BrowserExecutorEngine } from '../engine/browser-executor'
 import { LogEntry, ExecutorType } from '../engine/types'
+import { saveCodeToStorage, loadCodeFromStorage } from '../utils/local-storage'
 
 const App: React.FC = () => {
   const packageName = getPackageNameFromUrl(window.location.href)
-  const initialCode = generateExampleCode(packageName)
 
-  const [code, setCode] = useState(initialCode)
+  // Load saved code or use generated example
+  const getInitialCode = (pkg: string): string => {
+    const savedCode = loadCodeFromStorage(pkg)
+    return savedCode || generateExampleCode(pkg)
+  }
+
+  const [code, setCode] = useState(() => getInitialCode(packageName))
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [error, setError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
@@ -27,10 +33,7 @@ const App: React.FC = () => {
 
     const initializeEngines = async () => {
       try {
-        await Promise.all([
-          quickjsExecutor.initialize(),
-          browserExecutor.initialize()
-        ])
+        await Promise.all([quickjsExecutor.initialize(), browserExecutor.initialize()])
       } catch (err) {
         if (isMounted) {
           setError(err instanceof Error ? err.message : String(err))
@@ -47,11 +50,20 @@ const App: React.FC = () => {
     }
   }, [quickjsExecutor, browserExecutor])
 
+  // Save code to localStorage when it changes
+  useEffect(() => {
+    const generatedCode = generateExampleCode(packageName)
+    // Only save if code has been modified from the default
+    if (code !== generatedCode) {
+      saveCodeToStorage(packageName, code)
+    }
+  }, [code, packageName])
+
   // Listen for URL changes and update code example
   useEffect(() => {
     const handleUrlChange = () => {
       const newPackageName = getPackageNameFromUrl(window.location.href)
-      const newCode = generateExampleCode(newPackageName)
+      const newCode = getInitialCode(newPackageName)
       setCode(newCode)
       setLogs([])
       setError(undefined)
@@ -108,7 +120,10 @@ const App: React.FC = () => {
           />
           <Output logs={logs} error={error} isLoading={isLoading} />
           <footer className="app-footer">
-            <a href="https://github.com/amio/npmjs.dev" target="_blank" rel="noopener noreferrer">npmjs.dev</a> is not affiliated with npm, Inc.
+            <a href="https://github.com/amio/npmjs.dev" target="_blank" rel="noopener noreferrer">
+              npmjs.dev
+            </a>{' '}
+            is not affiliated with npm, Inc.
           </footer>
         </div>
         <div className="doc-column">

@@ -29,13 +29,13 @@ export interface CodeEditorProps {
   onExecutorTypeChange: (type: ExecutorType) => void
 }
 
-export const CodeEditor: React.FC<CodeEditorProps> = ({ 
-  code, 
-  onChange, 
-  onExecute, 
-  isLoading, 
-  executorType, 
-  onExecutorTypeChange 
+export const CodeEditor: React.FC<CodeEditorProps> = ({
+  code,
+  onChange,
+  onExecute,
+  isLoading,
+  executorType,
+  onExecutorTypeChange,
 }) => {
   // register keydown listener on window to handle CMD+Enter globally
   React.useEffect(() => {
@@ -56,7 +56,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   const executorOptions: RadioSwitchOption[] = [
     { value: 'quickjs', label: 'QuickJS' },
-    { value: 'browser', label: 'Browser' }
+    { value: 'browser', label: 'Browser' },
   ]
 
   return (
@@ -81,13 +81,13 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       <div className="editor-footer">
         <div className="editor-controls">
           <div className="executor-switch" title="Select execution engine">
-            <RadioSwitch 
+            <RadioSwitch
               options={executorOptions}
               value={executorType}
-              onChange={(value) => onExecutorTypeChange(value as ExecutorType)}
+              onChange={value => onExecutorTypeChange(value as ExecutorType)}
             />
           </div>
-          <Toggle active={isLoading} >
+          <Toggle active={isLoading}>
             <div className="spinner" />
           </Toggle>
           <button onClick={onExecute} disabled={isLoading} className="ghost-button">

@@ -51,7 +51,9 @@ export const Output: React.FC<OutputDisplayProps> = ({ logs, error }) => {
     <div className="output-panel">
       {error && (
         <div className="error-output">
-          <h4><RiErrorWarningLine /> Error Message</h4>
+          <h4>
+            <RiErrorWarningLine /> Error Message
+          </h4>
           <pre>{formatError(error)}</pre>
         </div>
       )}
