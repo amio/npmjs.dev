@@ -25,14 +25,14 @@ interface RadioSwitchProps {
 export function RadioSwitch({ options, value, onChange, className = '' }: RadioSwitchProps): React.ReactElement {
   return (
     <div className={`radio-switch ${className}`}>
-      {options.map((option) => (
+      {options.map(option => (
         <label key={option.value} className={`radio-switch-option ${value === option.value ? 'active' : ''}`}>
           <input
             type="radio"
             name="radio-switch"
             value={option.value}
             checked={value === option.value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={e => onChange(e.target.value)}
           />
           <span>{option.label}</span>
         </label>

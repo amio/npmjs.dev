@@ -604,7 +604,7 @@ div {
   opacity: 1;
 }
 
-.radio-switch-option input[type="radio"] {
+.radio-switch-option input[type='radio'] {
   position: absolute;
   opacity: 0;
   width: 0;
