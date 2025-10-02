@@ -75,7 +75,7 @@ describe('Local Storage Utilities', () => {
 
     // Check that metadata was updated (timestamp should be >= before)
     const metadata = JSON.parse(localStorageMock.getItem('npmjs-dev-metadata') || '{}')
-    assert.ok(metadata.timestamps[packageName] >= before)
+    assert.ok(metadata[packageName] >= before)
   })
 
   test('should handle storage limit of 100 items', () => {
@@ -149,14 +149,15 @@ describe('Local Storage Utilities', () => {
     }
 
     const metadata = JSON.parse(localStorageMock.getItem('npmjs-dev-metadata') || '{}')
+    const metadataKeys = Object.keys(metadata)
 
-    assert.strictEqual(metadata.packages.length, 3)
-    assert.ok(metadata.packages.includes('pkg1'))
-    assert.ok(metadata.packages.includes('pkg2'))
-    assert.ok(metadata.packages.includes('pkg3'))
-    assert.ok(metadata.timestamps['pkg1'])
-    assert.ok(metadata.timestamps['pkg2'])
-    assert.ok(metadata.timestamps['pkg3'])
+    assert.strictEqual(metadataKeys.length, 3)
+    assert.ok(metadataKeys.includes('pkg1'))
+    assert.ok(metadataKeys.includes('pkg2'))
+    assert.ok(metadataKeys.includes('pkg3'))
+    assert.ok(metadata['pkg1'])
+    assert.ok(metadata['pkg2'])
+    assert.ok(metadata['pkg3'])
   })
 
   test('should not add duplicate packages to metadata', () => {
@@ -168,7 +169,7 @@ describe('Local Storage Utilities', () => {
     assert.strictEqual(count, 1)
 
     const metadata = JSON.parse(localStorageMock.getItem('npmjs-dev-metadata') || '{}')
-    const lodashCount = metadata.packages.filter((p: string) => p === 'lodash').length
+    const lodashCount = Object.keys(metadata).filter((p: string) => p === 'lodash').length
     assert.strictEqual(lodashCount, 1)
   })
 })

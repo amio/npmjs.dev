@@ -7,10 +7,7 @@ const STORAGE_PREFIX = 'npmjs-dev-code:'
 const METADATA_KEY = 'npmjs-dev-metadata'
 const MAX_ITEMS = 100
 
-interface StorageMetadata {
-  packages: string[]
-  timestamps: Record<string, number>
-}
+type StorageMetadata = Record<string, number>
 
 /**
  * Get the storage key for a package
@@ -31,7 +28,7 @@ const getMetadata = (): StorageMetadata => {
   } catch (error) {
     console.warn('Failed to read storage metadata:', error)
   }
-  return { packages: [], timestamps: {} }
+  return {}
 }
 
 /**
@@ -50,14 +47,15 @@ const saveMetadata = (metadata: StorageMetadata): void => {
  */
 const enforceStorageLimit = (): void => {
   const metadata = getMetadata()
+  const packages = Object.keys(metadata)
 
-  if (metadata.packages.length >= MAX_ITEMS) {
+  if (packages.length >= MAX_ITEMS) {
     // Find the least recently used package
-    let oldestPackage = metadata.packages[0]
-    let oldestTimestamp = metadata.timestamps[oldestPackage] || 0
+    let oldestPackage = packages[0]
+    let oldestTimestamp = metadata[oldestPackage] || 0
 
-    for (const pkg of metadata.packages) {
-      const timestamp = metadata.timestamps[pkg] || 0
+    for (const pkg of packages) {
+      const timestamp = metadata[pkg] || 0
       if (timestamp < oldestTimestamp) {
         oldestTimestamp = timestamp
         oldestPackage = pkg
@@ -67,8 +65,7 @@ const enforceStorageLimit = (): void => {
     // Remove the oldest item
     try {
       localStorage.removeItem(getStorageKey(oldestPackage))
-      metadata.packages = metadata.packages.filter(p => p !== oldestPackage)
-      delete metadata.timestamps[oldestPackage]
+      delete metadata[oldestPackage]
       saveMetadata(metadata)
     } catch (error) {
       console.warn('Failed to remove oldest item:', error)
@@ -90,11 +87,8 @@ export const saveCodeToStorage = (packageName: string, code: string): void => {
 
     localStorage.setItem(key, code)
 
-    // Update metadata
-    if (!metadata.packages.includes(packageName)) {
-      metadata.packages.push(packageName)
-    }
-    metadata.timestamps[packageName] = Date.now()
+    // Update metadata with timestamp
+    metadata[packageName] = Date.now()
     saveMetadata(metadata)
   } catch (error) {
     console.warn('Failed to save code to storage:', error)
@@ -114,7 +108,7 @@ export const loadCodeFromStorage = (packageName: string): string | null => {
     if (code) {
       // Update timestamp when accessed
       const metadata = getMetadata()
-      metadata.timestamps[packageName] = Date.now()
+      metadata[packageName] = Date.now()
       saveMetadata(metadata)
     }
 
@@ -132,7 +126,7 @@ export const clearAllStorage = (): void => {
   try {
     const metadata = getMetadata()
 
-    for (const pkg of metadata.packages) {
+    for (const pkg of Object.keys(metadata)) {
       localStorage.removeItem(getStorageKey(pkg))
     }
 
@@ -148,7 +142,7 @@ export const clearAllStorage = (): void => {
 export const getStorageCount = (): number => {
   try {
     const metadata = getMetadata()
-    return metadata.packages.length
+    return Object.keys(metadata).length
   } catch (error) {
     return 0
   }
