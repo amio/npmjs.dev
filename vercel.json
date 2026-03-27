@@ -1,5 +1,24 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
-  "redirects": [{ "source": "/package/(.*)", "destination": "/$1", "permanent": false }]
+  "routes": [
+    {
+      "src": "/package/(.*)",
+      "headers": {
+        "Location": "/$1"
+      },
+      "status": 307
+    },
+    {
+      "src": "/api/engines/cloudflare",
+      "dest": "/api/engines/cloudflare.js"
+    },
+    {
+      "src": "/api/execute/cloudflare",
+      "dest": "/api/execute/cloudflare.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
