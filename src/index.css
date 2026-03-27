@@ -129,31 +129,6 @@ div {
   }
 }
 
-@media (max-width: 999px) {
-  .app-container {
-    .header-row {
-      padding-right: 0;
-
-      .app-header {
-        width: min(42rem, calc(100vw - 4rem));
-        margin: 0 auto;
-      }
-    }
-
-    .app-main {
-      .runner-column {
-        position: static;
-        inset: auto;
-        margin: 13vh auto 0;
-        padding: 0 2rem 2rem;
-      }
-
-      .doc-column {
-        display: none;
-      }
-    }
-  }
-}
 
 /* ================================== */
 /* =       CODE EDITOR STYLES       = */
@@ -646,6 +621,37 @@ div {
 }
 
 /* ================================== */
+
+/* ================================== */
+/* =      RESPONSIVE STYLES         = */
+/* ================================== */
+
+@media (max-width: 999px) {
+  .app-container {
+    .header-row {
+      padding-right: 0;
+
+      .app-header {
+        width: auto;
+        margin: 0 auto;
+      }
+    }
+
+    .app-main {
+      .runner-column {
+        inset: 0 0 0 0;
+        margin: 13vh auto 0;
+        padding-left: 6vw;
+        padding-right: 6vw;
+      }
+
+      .doc-column {
+        display: none;
+      }
+    }
+  }
+}
+
 /* =      RADIO SWITCH STYLES       = */
 /* ================================== */
 

@@ -102,6 +102,9 @@ export const selectAutoExecutor = (
   } else if (hasExternalModules) {
     preferredExecutors = ['quickjs', 'browser', 'cloudflare']
     reason = 'npm imports were detected. Running locally via esm.sh first.'
+  } else if (hasNodeSignals) {
+    preferredExecutors = ['cloudflare', 'quickjs', 'browser']
+    reason = 'Node.js-specific APIs were detected, which are not supported in browser runtimes.'
   } else {
     preferredExecutors = ['quickjs', 'browser', 'cloudflare']
     reason = 'the script looks lightweight, so the fastest VM is preferred.'
