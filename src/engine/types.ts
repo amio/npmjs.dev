@@ -10,4 +10,17 @@ export interface ExecutionResult {
   error?: string
 }
 
-export type ExecutorType = 'quickjs' | 'browser'
+export interface ExecutionEngine {
+  initialize(): Promise<void>
+  execute(code: string): Promise<ExecutionResult>
+  isReady(): boolean
+  dispose(): void
+  getUnavailableReason?(): string | undefined
+}
+
+export interface ExecutorAvailability {
+  ready: boolean
+  reason?: string
+}
+
+export type ExecutorType = 'quickjs' | 'browser' | 'cloudflare'

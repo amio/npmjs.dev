@@ -4,8 +4,21 @@ import { Output } from './output'
 import { Readme } from './readme'
 import { JSExecutorEngine } from '../engine/quickjs-executor'
 import { BrowserExecutorEngine } from '../engine/browser-executor'
-import { LogEntry, ExecutorType } from '../engine/types'
+import { CloudflareExecutorEngine } from '../engine/cloudflare-executor'
+import { ExecutionEngine, ExecutorAvailability, LogEntry, ExecutorType } from '../engine/types'
 import { saveCodeToStorage, loadCodeFromStorage } from '../utils/local-storage'
+
+const EXECUTOR_ORDER: ExecutorType[] = ['quickjs', 'browser', 'cloudflare']
+
+const createDefaultExecutorAvailability = (): Record<ExecutorType, ExecutorAvailability> => ({
+  quickjs: { ready: false, reason: 'QuickJS is still initializing.' },
+  browser: { ready: false, reason: 'Browser sandbox is still initializing.' },
+  cloudflare: {
+    ready: false,
+    reason:
+      'Cloudflare host Worker is not available yet. Deploy it first, or set VITE_CLOUDFLARE_EXECUTOR_API in local development.',
+  },
+})
 
 const App: React.FC = () => {
   const packageName = getPackageNameFromUrl(window.location.href)
@@ -21,23 +34,50 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [executorType, setExecutorType] = useState<ExecutorType>('quickjs')
+  const [executorAvailability, setExecutorAvailability] = useState<Record<ExecutorType, ExecutorAvailability>>(
+    createDefaultExecutorAvailability
+  )
 
-  const [quickjsExecutor] = useState(() => new JSExecutorEngine())
-  const [browserExecutor] = useState(() => new BrowserExecutorEngine())
+  const [executors] = useState<Record<ExecutorType, ExecutionEngine>>(() => ({
+    quickjs: new JSExecutorEngine(),
+    browser: new BrowserExecutorEngine(),
+    cloudflare: new CloudflareExecutorEngine(),
+  }))
 
-  const currentExecutor = executorType === 'quickjs' ? quickjsExecutor : browserExecutor
+  const currentExecutor = executors[executorType]
 
   // Initialize execution engines
   useEffect(() => {
     let isMounted = true
 
     const initializeEngines = async () => {
-      try {
-        await Promise.all([quickjsExecutor.initialize(), browserExecutor.initialize()])
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : String(err))
-        }
+      const nextAvailability = createDefaultExecutorAvailability()
+
+      await Promise.all(
+        EXECUTOR_ORDER.map(async executorName => {
+          const executor = executors[executorName]
+
+          try {
+            await executor.initialize()
+          } catch (err) {
+            nextAvailability[executorName] = {
+              ready: false,
+              reason: err instanceof Error ? err.message : String(err),
+            }
+            return
+          }
+
+          nextAvailability[executorName] = executor.isReady()
+            ? { ready: true }
+            : {
+                ready: false,
+                reason: executor.getUnavailableReason?.() || 'Initialization did not complete successfully.',
+              }
+        })
+      )
+
+      if (isMounted) {
+        setExecutorAvailability(nextAvailability)
       }
     }
 
@@ -45,10 +85,22 @@ const App: React.FC = () => {
 
     return () => {
       isMounted = false
-      quickjsExecutor.dispose()
-      browserExecutor.dispose()
+      EXECUTOR_ORDER.forEach(executorName => {
+        executors[executorName].dispose()
+      })
     }
-  }, [quickjsExecutor, browserExecutor])
+  }, [executors])
+
+  useEffect(() => {
+    if (executorAvailability[executorType]?.ready) {
+      return
+    }
+
+    const fallbackExecutor = EXECUTOR_ORDER.find(type => executorAvailability[type].ready)
+    if (fallbackExecutor && fallbackExecutor !== executorType) {
+      setExecutorType(fallbackExecutor)
+    }
+  }, [executorAvailability, executorType])
 
   // Save code to localStorage when it changes
   useEffect(() => {
@@ -80,7 +132,7 @@ const App: React.FC = () => {
   // Execute code
   const executeCode = useCallback(async () => {
     if (!currentExecutor.isReady()) {
-      setError('Execution engine is not initialized yet')
+      setError(currentExecutor.getUnavailableReason?.() || 'Execution engine is not initialized yet')
       return
     }
 
@@ -117,6 +169,7 @@ const App: React.FC = () => {
             isLoading={isLoading}
             executorType={executorType}
             onExecutorTypeChange={setExecutorType}
+            executorAvailability={executorAvailability}
           />
           <Output logs={logs} error={error} isLoading={isLoading} />
           <footer className="app-footer">
@@ -173,7 +226,7 @@ export const generateExampleCode = (packageName: string): string => {
     .replace(/^[0-9]/, '_$&') // Add underscore prefix if starts with number
     .replace(/[^a-zA-Z0-9_]/g, '') // Remove other invalid characters
 
-  return `import ${variableName} from '${cleanedPackageName}'\n\nconsole.log(\n  Object.keys(${variableName})\n)`
+  return `import * as ${variableName} from '${cleanedPackageName}'\n\nconsole.log(\n  Object.keys(${variableName})\n)`
 }
 
 export default App

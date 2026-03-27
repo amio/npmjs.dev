@@ -1,6 +1,6 @@
 import React from 'react'
 import { Toggle, RadioSwitch, RadioSwitchOption } from './ui-elements'
-import { ExecutorType } from '../engine/types'
+import { ExecutorAvailability, ExecutorType } from '../engine/types'
 
 import CodeMirror from '@uiw/react-codemirror'
 import { githubLight } from '@uiw/codemirror-theme-github'
@@ -27,6 +27,7 @@ export interface CodeEditorProps {
   isLoading: boolean
   executorType: ExecutorType
   onExecutorTypeChange: (type: ExecutorType) => void
+  executorAvailability: Record<ExecutorType, ExecutorAvailability>
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({
@@ -36,6 +37,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   isLoading,
   executorType,
   onExecutorTypeChange,
+  executorAvailability,
 }) => {
   // register keydown listener on window to handle CMD+Enter globally
   React.useEffect(() => {
@@ -55,8 +57,24 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   }, [onExecute, isLoading])
 
   const executorOptions: RadioSwitchOption[] = [
-    { value: 'quickjs', label: 'QuickJS' },
-    { value: 'browser', label: 'Browser' },
+    {
+      value: 'quickjs',
+      label: 'QuickJS',
+      disabled: !executorAvailability.quickjs.ready,
+      title: executorAvailability.quickjs.reason,
+    },
+    {
+      value: 'browser',
+      label: 'Browser',
+      disabled: !executorAvailability.browser.ready,
+      title: executorAvailability.browser.reason,
+    },
+    {
+      value: 'cloudflare',
+      label: 'Cloudflare',
+      disabled: !executorAvailability.cloudflare.ready,
+      title: executorAvailability.cloudflare.reason,
+    },
   ]
 
   return (

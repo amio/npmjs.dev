@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "npmjs-dev",
+  // Deploy only the Dynamic Worker API. Static assets stay on Vercel.
+  "main": "src/cloudflare-worker/host.ts",
+  "compatibility_date": "2026-03-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "worker_loaders": [{ "binding": "LOADER" }],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://npmjs.dev,https://*.vercel.app"
+  },
+  "observability": {
+    "enabled": true,
+  },
+}

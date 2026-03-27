@@ -1,0 +1,2 @@
+# Optional: only needed for non-local or split-origin setups.
+# ALLOWED_ORIGINS=https://your-app.example.com

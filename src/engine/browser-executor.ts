@@ -227,8 +227,7 @@ export class BrowserExecutorEngine {
       this.isInitialized = true
     } catch (error) {
       throw new Error(
-        `Browser executor initialization failed: ${error instanceof Error ? error.message : String(error)}`,
-        { cause: error }
+        `Browser executor initialization failed: ${error instanceof Error ? error.message : String(error)}`
       )
     }
   }

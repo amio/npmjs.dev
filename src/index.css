@@ -259,6 +259,16 @@ div {
   color: #0366d6;
 }
 
+.radio-switch-option.disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.radio-switch-option.disabled input,
+.radio-switch-option.disabled span {
+  cursor: not-allowed;
+}
+
 /* Return value styling */
 .return-value {
   margin-top: 1rem;

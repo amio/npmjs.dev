@@ -1,15 +1,20 @@
 {
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n worker,web -c blue,green \"npm:dev:worker\" \"wait-on http-get://127.0.0.1:8787/api/engines/cloudflare && npm run dev:web\"",
+    "dev:web": "vite",
+    "dev:worker": "node ./scripts/dev-worker.mjs",
     "build": "vite build",
     "preview": "vite preview",
+    "preview:cloudflare": "wrangler dev",
+    "deploy:cloudflare": "wrangler deploy",
     "test": "node --import tsx --test 'src/**/*.test.ts'",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "lint": "oxlint . --react-plugin --jsx-a11y-plugin",
-    "lint:fix": "oxlint . --react-plugin --jsx-a11y-plugin --fix"
+    "lint": "oxlint src vite.config.ts --react-plugin --jsx-a11y-plugin",
+    "lint:fix": "oxlint src vite.config.ts --react-plugin --jsx-a11y-plugin --fix"
   },
   "dependencies": {
+    "@cloudflare/worker-bundler": "^0.0.4",
     "@codemirror/lang-javascript": "^6.2.4",
     "@codesandbox/sandpack-react": "^2.20.0",
     "@remixicon/react": "^4.6.0",
@@ -27,12 +32,15 @@
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^6.0.1",
+    "concurrently": "^9.2.1",
     "esbuild-wasm": "^0.25.4",
     "oxfmt": "^0.42.0",
     "oxlint": "^1.57.0",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "vite": "^8.0.3",
-    "vite-plugin-wasm": "^3.6.0"
+    "vite-plugin-wasm": "^3.6.0",
+    "wait-on": "^9.0.4",
+    "wrangler": "^4.77.0"
   }
 }
