@@ -47,3 +47,24 @@ export function RadioSwitch({ options, value, onChange, className = '' }: RadioS
     </div>
   )
 }
+
+interface HoverHintProps {
+  label: React.ReactNode
+  title: string
+  children: React.ReactNode
+  className?: string
+}
+
+export function HoverHint({ label, title, children, className = '' }: HoverHintProps): React.ReactElement {
+  return (
+    <div className={`hover-hint ${className}`}>
+      <button type="button" className="hover-hint-trigger" aria-label={title}>
+        {label}
+      </button>
+      <div className="hover-hint-panel" role="tooltip">
+        <div className="hover-hint-title">{title}</div>
+        <div className="hover-hint-body">{children}</div>
+      </div>
+    </div>
+  )
+}

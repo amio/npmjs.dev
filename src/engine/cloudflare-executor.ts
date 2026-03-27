@@ -10,7 +10,7 @@ import { getCloudflareExecutorApiBase } from './cloudflare-config'
 import { ExecutionEngine, ExecutionResult } from './types'
 
 const DEFAULT_UNAVAILABLE_REASON =
-  'Cloudflare engine is not configured for this environment yet. Deploy the host Worker, or set VITE_CLOUDFLARE_EXECUTOR_API during local development.'
+  'Cloudflare Worker is not configured for this environment yet. Deploy the host Worker, or set VITE_CLOUDFLARE_EXECUTOR_API during local development.'
 
 interface CloudflareExecutorOptions {
   apiBase?: string
@@ -90,7 +90,7 @@ export class CloudflareExecutorEngine implements ExecutionEngine {
       if (!response.ok) {
         return {
           logs: [],
-          error: payload.error || `Cloudflare execution failed with ${response.status}`,
+          error: payload.error || `Cloudflare Worker execution failed with ${response.status}`,
         }
       }
 
@@ -102,7 +102,7 @@ export class CloudflareExecutorEngine implements ExecutionEngine {
     } catch (error) {
       return {
         logs: [],
-        error: `Cloudflare execution error: ${error instanceof Error ? error.message : String(error)}`,
+        error: `Cloudflare Worker execution error: ${error instanceof Error ? error.message : String(error)}`,
       }
     }
   }

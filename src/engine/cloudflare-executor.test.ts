@@ -23,7 +23,7 @@ describe('CloudflareExecutorEngine', () => {
 
     const result = await executor.execute('console.log("hello")')
 
-    assert.match(result.error || '', /Cloudflare engine is not configured/)
+    assert.match(result.error || '', /Cloudflare Worker is not configured/)
     assert.strictEqual(executor.isReady(), false)
   })
 
