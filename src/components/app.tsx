@@ -141,7 +141,7 @@ export const getPackageNameFromUrl = (url: string): string => {
     const pathParts = urlObj.pathname.split('/').filter(Boolean)
 
     if (pathParts.length === 0) {
-      return 'lodash' // Default to lodash as example
+      return ''
     }
 
     // Handle scoped packages like @babel/core
@@ -152,7 +152,7 @@ export const getPackageNameFromUrl = (url: string): string => {
     // Handle regular packages
     return pathParts[0]
   } catch (e) {
-    return 'lodash' // Default to lodash if URL parsing fails
+    return ''
   }
 }
 

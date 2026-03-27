@@ -325,7 +325,7 @@ div {
 }
 
 .app-footer {
-  padding-bottom: 1rem;
+    padding-bottom: 1.5rem;
   font-size: 13px;
   text-align: center;
   color: var(--text-color-dim, #888);
@@ -396,14 +396,49 @@ div {
 }
 
 .readme-placeholder {
-  text-align: center;
   color: #666;
-  padding: 2rem;
+  padding: 2.5rem 0 3rem;
+}
+
+.readme-welcome-layout {
+  min-height: 100vh;
+  display: flex;
+}
+
+.readme-welcome {
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.readme-welcome h2 {
+  margin: 0.4rem 0 2.8rem 0;
+  color: #1a1a1a;
+  font-size: 1.8rem;
+  line-height: 2rem;
+}
+
+.readme-welcome p {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.readme-welcome p code {
+  margin: 0 0.2rem;
+}
+
+.readme-welcome-hint {
+  color: var(--text-color-dim);
+  font-size: var(--font-size-s);
 }
 
 .readme-placeholder a {
   color: #2b6cb0;
   text-decoration: underline;
+}
+
+.readme-welcome .readme-placeholder a {
+  text-decoration: none;
 }
 .markdown-content {
   line-height: 1.6;

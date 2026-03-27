@@ -6,6 +6,13 @@ export interface ReadmeProps {
   package: string
 }
 
+const QUICK_DEMOS = [
+  { name: 'lodash', href: '/lodash' },
+  { name: 'silabajs', href: '/silabajs' },
+]
+
+const isWelcomeMode = (packageName: string) => !packageName
+
 export function Readme({ package: packageName }: ReadmeProps) {
   const [markdownContent, setMarkdownContent] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
@@ -13,7 +20,12 @@ export function Readme({ package: packageName }: ReadmeProps) {
 
   useEffect(() => {
     const fetchReadme = async () => {
-      if (!packageName) return
+      if (isWelcomeMode(packageName)) {
+        setIsLoading(false)
+        setError(null)
+        setMarkdownContent('')
+        return
+      }
 
       setIsLoading(true)
       setError(null)
@@ -57,6 +69,37 @@ export function Readme({ package: packageName }: ReadmeProps) {
 
     fetchReadme()
   }, [packageName])
+
+  if (isWelcomeMode(packageName)) {
+    return (
+      <div className="readme">
+        <div className="readme-content readme-welcome-layout">
+          <div className="readme-placeholder readme-welcome">
+            <h2>Welcome to npmjs:dev</h2>
+            <p>
+              Explore npm packages directly in the browser. Pick a demo package below to automatically
+              load sample code on the left and view package documentation here.
+            </p>
+            <p>
+              You can also change the URL manually to any package name, including scoped packages such as
+              <code>@babel/core</code>.
+            </p>
+            <p className="readme-welcome-hint">
+              Try examples:
+              {' '}
+              {QUICK_DEMOS.map((demo, index) => (
+                <span key={demo.name}>
+                  {index > 0 && ' · '}
+                  <a href={demo.href}>{demo.name}</a>
+                </span>
+              ))}
+            </p>
+
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="readme">
