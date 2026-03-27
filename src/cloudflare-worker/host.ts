@@ -16,6 +16,7 @@ import {
   createCorsPreflightResponse,
   createVirtualWorkerFiles,
   defaultCompatibilityDate,
+  hasValidRunnerSecret,
   isCodeWithinLimit,
   normalizeExecutionError,
   resolveAllowedOrigin,
@@ -59,6 +60,18 @@ const ensureRequestOrigin = (request: Request, env: CloudflareExecutorHostEnv): 
 
   return undefined
 }
+
+const isTrustedRunnerProxyRequest = (request: Request, env: CloudflareExecutorHostEnv): boolean =>
+  hasValidRunnerSecret(request, env.RUNNER_SHARED_SECRET)
+
+const createUnauthorizedRunnerResponse = (): Response =>
+  createJsonResponse(
+    {
+      ok: false,
+      error: 'Runner authentication failed.',
+    },
+    { status: 401 }
+  )
 
 const createHealthResponse = (): CloudflareExecutorHealthResponse => ({
   ok: true,
@@ -118,12 +131,22 @@ const executeCode = async (code: string, env: CloudflareExecutorHostEnv): Promis
 export default {
   async fetch(request: Request, env: CloudflareExecutorHostEnv): Promise<Response> {
     const url = new URL(request.url)
+    const requiresRunnerAuth = Boolean(env.RUNNER_SHARED_SECRET?.trim())
+    const isTrustedRunnerRequest = isTrustedRunnerProxyRequest(request, env)
 
     if (request.method === 'OPTIONS' && url.pathname === CLOUDFLARE_EXECUTOR_RUN_PATH) {
+      if (requiresRunnerAuth && !isTrustedRunnerRequest) {
+        return createUnauthorizedRunnerResponse()
+      }
+
       return createCorsPreflightResponse(request, env.ALLOWED_ORIGINS)
     }
 
     if ((request.method === 'GET' || request.method === 'HEAD') && url.pathname === CLOUDFLARE_EXECUTOR_HEALTH_PATH) {
+      if (requiresRunnerAuth && !isTrustedRunnerRequest) {
+        return createUnauthorizedRunnerResponse()
+      }
+
       if (request.method === 'HEAD') {
         return new Response(null, {
           status: 200,
@@ -138,9 +161,15 @@ export default {
     }
 
     if (request.method === 'POST' && url.pathname === CLOUDFLARE_EXECUTOR_RUN_PATH) {
-      const blockedResponse = ensureRequestOrigin(request, env)
-      if (blockedResponse) {
-        return blockedResponse
+      if (requiresRunnerAuth) {
+        if (!isTrustedRunnerRequest) {
+          return createUnauthorizedRunnerResponse()
+        }
+      } else {
+        const blockedResponse = ensureRequestOrigin(request, env)
+        if (blockedResponse) {
+          return blockedResponse
+        }
       }
 
       let payload: CloudflareExecutorRunRequest

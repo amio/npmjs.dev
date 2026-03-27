@@ -32,6 +32,7 @@ export interface WorkerLoaderBinding {
 export interface CloudflareExecutorHostEnv {
   LOADER: WorkerLoaderBinding
   ALLOWED_ORIGINS?: string
+  RUNNER_SHARED_SECRET?: string
 }
 
 const EXECUTION_REQUEST_ORIGIN_HEADER = 'Origin'
@@ -51,6 +52,20 @@ export const getConfiguredAllowedOrigins = (configuredOrigins?: string): string[
     ?.split(',')
     .map(origin => origin.trim())
     .filter(Boolean) || []
+
+export const hasValidRunnerSecret = (request: Request, configuredSecret?: string): boolean => {
+  const normalizedSecret = configuredSecret?.trim()
+  if (!normalizedSecret) {
+    return false
+  }
+
+  const authorizationHeader = request.headers.get('Authorization')
+  if (authorizationHeader === `Bearer ${normalizedSecret}`) {
+    return true
+  }
+
+  return request.headers.get('X-Runner-Secret') === normalizedSecret
+}
 
 const matchesAllowedOriginPattern = (requestOrigin: string, allowedOriginPattern: string): boolean => {
   if (requestOrigin === allowedOriginPattern) {

@@ -6,6 +6,7 @@ import {
   createVirtualWorkerFiles,
   deriveRuntimeDependencies,
   getConfiguredAllowedOrigins,
+  hasValidRunnerSecret,
   isCodeWithinLimit,
   resolveAllowedOrigin,
 } from './runtime'
@@ -59,6 +60,26 @@ describe('cloudflare worker runtime helpers', () => {
     })
 
     assert.strictEqual(resolveAllowedOrigin(request, 'https://npmjs.dev, https://*.vercel.app'), undefined)
+  })
+
+  test('accepts bearer token auth for trusted runner proxy requests', () => {
+    const request = new Request('https://npmjs-dev.amio.workers.dev/api/execute/cloudflare', {
+      headers: {
+        Authorization: 'Bearer super-secret',
+      },
+    })
+
+    assert.strictEqual(hasValidRunnerSecret(request, 'super-secret'), true)
+  })
+
+  test('rejects missing or mismatched trusted runner secret', () => {
+    const request = new Request('https://npmjs-dev.amio.workers.dev/api/execute/cloudflare', {
+      headers: {
+        Authorization: 'Bearer nope',
+      },
+    })
+
+    assert.strictEqual(hasValidRunnerSecret(request, 'super-secret'), false)
   })
 
   test('creates a virtual project for the worker bundler', () => {
