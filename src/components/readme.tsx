@@ -16,20 +16,32 @@ const isWelcomeMode = (packageName: string) => !packageName
 export function Readme({ package: packageName }: ReadmeProps) {
   const [markdownContent, setMarkdownContent] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showLoading, setShowLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let loadingTimer: ReturnType<typeof setTimeout> | null = null
+    let isCancelled = false
+
     const fetchReadme = async () => {
       if (isWelcomeMode(packageName)) {
         setIsLoading(false)
+        setShowLoading(false)
         setError(null)
         setMarkdownContent('')
         return
       }
 
       setIsLoading(true)
+      setShowLoading(false)
       setError(null)
       setMarkdownContent('')
+
+      loadingTimer = setTimeout(() => {
+        if (!isCancelled) {
+          setShowLoading(true)
+        }
+      }, 500)
 
       try {
         const response = await fetch(`https://unpkg.com/${packageName}/readme.md`)
@@ -63,11 +75,24 @@ export function Readme({ package: packageName }: ReadmeProps) {
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch README')
       } finally {
-        setIsLoading(false)
+        if (loadingTimer) {
+          clearTimeout(loadingTimer)
+        }
+        if (!isCancelled) {
+          setIsLoading(false)
+          setShowLoading(false)
+        }
       }
     }
 
     fetchReadme()
+
+    return () => {
+      isCancelled = true
+      if (loadingTimer) {
+        clearTimeout(loadingTimer)
+      }
+    }
   }, [packageName])
 
   if (isWelcomeMode(packageName)) {
@@ -102,12 +127,14 @@ export function Readme({ package: packageName }: ReadmeProps) {
   return (
     <div className="readme">
       <div className="readme-content">
-        {isLoading && (
+        {isLoading && showLoading && (
           <div className="readme-loading">
-            <PlaceholderLoading shape="rect" width="100%" height="3vh" />
-            <PlaceholderLoading shape="rect" width="100%" height="3vh" />
-            <PlaceholderLoading shape="rect" width="100%" height="3vh" />
-            <PlaceholderLoading shape="rect" width="100%" height="24vh" />
+            <PlaceholderLoading shape="rect" width="68%" height="1.75rem" />
+            <PlaceholderLoading shape="rect" width="100%" height="0.95rem" />
+            <PlaceholderLoading shape="rect" width="94%" height="0.95rem" />
+            <PlaceholderLoading shape="rect" width="88%" height="0.95rem" />
+            <PlaceholderLoading shape="rect" width="76%" height="0.95rem" />
+            <PlaceholderLoading shape="rect" width="82%" height="0.95rem" />
           </div>
         )}
 
