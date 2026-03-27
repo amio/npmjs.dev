@@ -13,6 +13,8 @@ export function Toggle({ active, children, fallback }: ToggleProps): React.React
 export interface RadioSwitchOption {
   value: string
   label: string
+  disabled?: boolean
+  title?: string
 }
 
 interface RadioSwitchProps {
@@ -26,12 +28,17 @@ export function RadioSwitch({ options, value, onChange, className = '' }: RadioS
   return (
     <div className={`radio-switch ${className}`}>
       {options.map(option => (
-        <label key={option.value} className={`radio-switch-option ${value === option.value ? 'active' : ''}`}>
+        <label
+          key={option.value}
+          className={`radio-switch-option ${value === option.value ? 'active' : ''} ${option.disabled ? 'disabled' : ''}`}
+          title={option.title}
+        >
           <input
             type="radio"
             name="radio-switch"
             value={option.value}
             checked={value === option.value}
+            disabled={option.disabled}
             onChange={e => onChange(e.target.value)}
           />
           <span>{option.label}</span>
