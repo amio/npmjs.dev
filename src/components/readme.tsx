@@ -88,7 +88,7 @@ export function Readme({ package: packageName }: ReadmeProps) {
 
         {!isLoading && !error && markdownContent && (
           <div className="markdown-content">
-            <Markdown gfm>{markdownContent}</Markdown>
+            <Markdown gfm>{markdownContent.replace(/<br\s*\/?>/gi, '  \n')}</Markdown>
           </div>
         )}
 
