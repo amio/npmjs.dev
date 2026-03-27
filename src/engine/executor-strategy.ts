@@ -13,17 +13,17 @@ export const EXECUTOR_DESCRIPTORS: Record<ExecutorType, ExecutorDescriptor> = {
   quickjs: {
     label: 'QuickJS',
     summary: 'Runs in a QuickJS WASM VM with npm support via esm.sh.',
-    hint: 'Instant startup, no server needed. Handles most npm packages.',
+    hint: 'Instant startup.',
   },
   browser: {
     label: 'Browser Sandbox',
     summary: 'Runs inside a real browser iframe with DOM APIs and import maps.',
-    hint: 'Best for React, DOM helpers, visual libraries, and browser-first packages.',
+    hint: 'Best for browser-first packages.',
   },
   cloudflare: {
-    label: 'Cloudflare Worker',
-    summary: 'Bundles npm dependencies and runs them in a remote Worker runtime.',
-    hint: 'Uses server resources. Auto-selected only when local runtimes cannot handle the code.',
+    label: 'CF Worker',
+    summary: 'Bundles npm dependencies and runs them in a remote Cloudflare Worker runtime.',
+    hint: 'Auto-selected only when browser runtimes cannot handle the code.',
   },
 }
 
