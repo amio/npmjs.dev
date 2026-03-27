@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import PlaceholderLoading from 'react-placeholder-loading'
 import Markdown from 'marked-react'
+import DOMPurify from 'dompurify'
 
 export interface ReadmeProps {
   package: string
@@ -12,6 +13,19 @@ const QUICK_DEMOS = [
 ]
 
 const isWelcomeMode = (packageName: string) => !packageName
+
+let htmlKeyCounter = 0
+
+const markdownRenderer = {
+  html(html: string) {
+    return (
+      <span
+        key={`html-${htmlKeyCounter++}`}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
+      />
+    )
+  },
+}
 
 export function Readme({ package: packageName }: ReadmeProps) {
   const [markdownContent, setMarkdownContent] = useState<string>('')
@@ -156,7 +170,9 @@ export function Readme({ package: packageName }: ReadmeProps) {
 
         {!isLoading && !error && markdownContent && (
           <div className="markdown-content">
-            <Markdown gfm>{markdownContent.replace(/<br\s*\/?>/gi, '  \n')}</Markdown>
+            <Markdown gfm renderer={markdownRenderer}>
+              {markdownContent.replace(/<br\s*\/?>/gi, '  \n')}
+            </Markdown>
           </div>
         )}
 

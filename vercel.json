@@ -17,6 +17,9 @@
       "dest": "/api/execute/cloudflare.js"
     },
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
