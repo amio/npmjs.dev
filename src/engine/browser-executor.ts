@@ -116,7 +116,7 @@ export class BrowserExecutorEngine {
                 const content = args
                   .map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg))
                   .join(' ');
-                
+
                 window.executionLogs.push({
                   type: type,
                   content: content,
@@ -154,18 +154,18 @@ export class BrowserExecutorEngine {
                 // Create a blob URL for the module
                 const blob = new Blob([code], { type: 'application/javascript' });
                 const moduleUrl = URL.createObjectURL(blob);
-                
+
                 try {
                   // Import the module
                   const module = await import(moduleUrl);
-                  
+
                   // Store the default export or the entire module as result
                   window.executionResult = module.default !== undefined ? module.default : module;
-                  
+
                   return {
                     logs: window.executionLogs,
-                    returnValue: window.executionResult !== undefined ? 
-                      (typeof window.executionResult === 'object' ? JSON.stringify(window.executionResult, null, 2) : String(window.executionResult)) : 
+                    returnValue: window.executionResult !== undefined ?
+                      (typeof window.executionResult === 'object' ? JSON.stringify(window.executionResult, null, 2) : String(window.executionResult)) :
                       undefined,
                     error: window.executionError
                   };
@@ -227,7 +227,8 @@ export class BrowserExecutorEngine {
       this.isInitialized = true
     } catch (error) {
       throw new Error(
-        `Browser executor initialization failed: ${error instanceof Error ? error.message : String(error)}`
+        `Browser executor initialization failed: ${error instanceof Error ? error.message : String(error)}`,
+        { cause: error }
       )
     }
   }

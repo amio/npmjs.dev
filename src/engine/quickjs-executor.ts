@@ -12,7 +12,9 @@ export class JSExecutorEngine {
       this.quickJSModule = await newQuickJSAsyncWASMModule()
       this.isInitialized = true
     } catch (error) {
-      throw new Error(`QuickJS initialization failed: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(`QuickJS initialization failed: ${error instanceof Error ? error.message : String(error)}`, {
+        cause: error,
+      })
     }
   }
 
@@ -25,7 +27,9 @@ export class JSExecutorEngine {
       }
       return await response.text()
     } catch (error) {
-      throw new Error(`Error loading module ${moduleName}: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(`Error loading module ${moduleName}: ${error instanceof Error ? error.message : String(error)}`, {
+        cause: error,
+      })
     }
   }
 
@@ -196,7 +200,7 @@ export class JSExecutorEngine {
     handles.forEach(handle => {
       try {
         handle?.dispose?.()
-      } catch (e) {
+      } catch {
         // Ignore cleanup errors
       }
     })

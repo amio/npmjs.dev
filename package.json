@@ -4,8 +4,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --import tsx --test 'src/**/*.test.ts'",
-    "format": "prettier --write .",
-    "lint": "prettier --check ."
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint . --react-plugin --jsx-a11y-plugin",
+    "lint:fix": "oxlint . --react-plugin --jsx-a11y-plugin --fix"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.4",
@@ -24,12 +26,13 @@
     "@types/node": "^22.15.24",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
-    "@vitejs/plugin-react": "^5.0.2",
+    "@vitejs/plugin-react": "^6.0.1",
     "esbuild-wasm": "^0.25.4",
-    "prettier": "^3.5.3",
+    "oxfmt": "^0.42.0",
+    "oxlint": "^1.57.0",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
-    "vite": "^7.0.4",
-    "vite-plugin-wasm": "^3.4.1"
+    "vite": "^8.0.3",
+    "vite-plugin-wasm": "^3.6.0"
   }
 }

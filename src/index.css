@@ -325,7 +325,7 @@ div {
 }
 
 .app-footer {
-    padding-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
   font-size: 13px;
   text-align: center;
   color: var(--text-color-dim, #888);
@@ -560,7 +560,7 @@ div {
   .ghost-button + .ghost-button {
     margin-left: 0.5em;
   }
-  .ghost-button :global(svg) {
+  .ghost-button svg {
     vertical-align: middle;
   }
   .ghost-button:focus {

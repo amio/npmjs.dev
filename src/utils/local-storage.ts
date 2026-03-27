@@ -143,7 +143,7 @@ export const getStorageCount = (): number => {
   try {
     const metadata = getMetadata()
     return Object.keys(metadata).length
-  } catch (error) {
+  } catch {
     return 0
   }
 }

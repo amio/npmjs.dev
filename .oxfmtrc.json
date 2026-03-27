@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": false,
+  "trailingComma": "es5",
+  "singleQuote": true,
+  "tabWidth": 2,
+  "useTabs": false,
+  "printWidth": 120,
+  "endOfLine": "lf",
+  "arrowParens": "avoid",
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "build/",
+    "*.log",
+    "coverage/",
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+    ".env",
+    ".env.local",
+    ".env.production",
+    ".env.test",
+    ".vscode/",
+    ".idea/",
+    ".DS_Store",
+    "Thumbs.db",
+    ".git/"
+  ]
+}

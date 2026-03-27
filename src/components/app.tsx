@@ -151,7 +151,7 @@ export const getPackageNameFromUrl = (url: string): string => {
 
     // Handle regular packages
     return pathParts[0]
-  } catch (e) {
+  } catch {
     return ''
   }
 }
@@ -163,13 +163,13 @@ export const generateExampleCode = (packageName: string): string => {
   // Clean package name by removing truly invalid characters
   // Keep valid npm package characters: letters, numbers, hyphens, underscores, periods, @ (for scoped packages and versions)
   const cleanedPackageName = packageName
-    .replace(/[^a-zA-Z0-9@\/\-\._]/g, '') // Remove truly invalid characters like #$%
+    .replace(/[^a-zA-Z0-9@/._-]/g, '') // Remove truly invalid characters like #$%
     .replace(/@+$/, '') // Remove trailing @ symbols
     .replace(/\/+$/, '') // Remove trailing slashes
 
   // Convert package name to a valid variable name
   const variableName = cleanedPackageName
-    .replace(/[@\/\-\.]/g, '_')
+    .replace(/[@/.-]/g, '_')
     .replace(/^[0-9]/, '_$&') // Add underscore prefix if starts with number
     .replace(/[^a-zA-Z0-9_]/g, '') // Remove other invalid characters
 

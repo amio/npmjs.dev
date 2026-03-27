@@ -77,16 +77,15 @@ export function Readme({ package: packageName }: ReadmeProps) {
           <div className="readme-placeholder readme-welcome">
             <h2>Welcome to npmjs:dev</h2>
             <p>
-              Explore npm packages directly in the browser. Pick a demo package below to automatically
-              load sample code on the left and view package documentation here.
+              Explore npm packages directly in the browser. Pick a demo package below to automatically load sample code
+              on the left and view package documentation here.
             </p>
             <p>
               You can also change the URL manually to any package name, including scoped packages such as
               <code>@babel/core</code>.
             </p>
             <p className="readme-welcome-hint">
-              Try examples:
-              {' '}
+              Try examples:{' '}
               {QUICK_DEMOS.map((demo, index) => (
                 <span key={demo.name}>
                   {index > 0 && ' · '}
@@ -94,7 +93,6 @@ export function Readme({ package: packageName }: ReadmeProps) {
                 </span>
               ))}
             </p>
-
           </div>
         </div>
       </div>

@@ -10,26 +10,26 @@ export interface OutputDisplayProps {
 
 export const Output: React.FC<OutputDisplayProps> = ({ logs, error }) => {
   // Safely convert error to string for display
-  const formatError = (error: any): string => {
-    if (typeof error === 'string') {
-      return error
+  const formatError = (value: any): string => {
+    if (typeof value === 'string') {
+      return value
     }
-    if (typeof error === 'object' && error !== null) {
+    if (typeof value === 'object' && value !== null) {
       // If it's an Error object or similar, try to get meaningful info
-      if (error.stack) {
-        return error.stack
+      if (value.stack) {
+        return value.stack
       }
-      if (error.message) {
-        return error.message
+      if (value.message) {
+        return value.message
       }
       // Otherwise stringify the object
       try {
-        return JSON.stringify(error, null, 2)
+        return JSON.stringify(value, null, 2)
       } catch {
-        return String(error)
+        return String(value)
       }
     }
-    return String(error)
+    return String(value)
   }
 
   // Safely convert log content to string for display
