@@ -57,6 +57,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const executorOptions: RadioSwitchOption[] = [
     { value: 'quickjs', label: 'QuickJS' },
     { value: 'browser', label: 'Browser' },
+    { value: 'cloudflare', label: 'Cloudflare' },
   ]
 
   return (

@@ -10,4 +10,4 @@ export interface ExecutionResult {
   error?: string
 }
 
-export type ExecutorType = 'quickjs' | 'browser'
+export type ExecutorType = 'quickjs' | 'browser' | 'cloudflare'

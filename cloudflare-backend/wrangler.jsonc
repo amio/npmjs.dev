@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dynamic-worker-host",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "worker_loaders": [
+    {
+      "binding": "LOADER"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

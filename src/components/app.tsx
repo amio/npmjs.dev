@@ -4,6 +4,7 @@ import { Output } from './output'
 import { Readme } from './readme'
 import { JSExecutorEngine } from '../engine/quickjs-executor'
 import { BrowserExecutorEngine } from '../engine/browser-executor'
+import { CloudflareExecutorEngine } from '../engine/cloudflare-executor'
 import { LogEntry, ExecutorType } from '../engine/types'
 import { saveCodeToStorage, loadCodeFromStorage } from '../utils/local-storage'
 
@@ -24,8 +25,14 @@ const App: React.FC = () => {
 
   const [quickjsExecutor] = useState(() => new JSExecutorEngine())
   const [browserExecutor] = useState(() => new BrowserExecutorEngine())
+  const [cloudflareExecutor] = useState(() => new CloudflareExecutorEngine())
 
-  const currentExecutor = executorType === 'quickjs' ? quickjsExecutor : browserExecutor
+  const currentExecutor =
+    executorType === 'quickjs'
+      ? quickjsExecutor
+      : executorType === 'browser'
+        ? browserExecutor
+        : cloudflareExecutor
 
   // Initialize execution engines
   useEffect(() => {
@@ -33,7 +40,11 @@ const App: React.FC = () => {
 
     const initializeEngines = async () => {
       try {
-        await Promise.all([quickjsExecutor.initialize(), browserExecutor.initialize()])
+        await Promise.all([
+          quickjsExecutor.initialize(),
+          browserExecutor.initialize(),
+          cloudflareExecutor.initialize(),
+        ])
       } catch (err) {
         if (isMounted) {
           setError(err instanceof Error ? err.message : String(err))
@@ -47,8 +58,9 @@ const App: React.FC = () => {
       isMounted = false
       quickjsExecutor.dispose()
       browserExecutor.dispose()
+      cloudflareExecutor.dispose()
     }
-  }, [quickjsExecutor, browserExecutor])
+  }, [quickjsExecutor, browserExecutor, cloudflareExecutor])
 
   // Save code to localStorage when it changes
   useEffect(() => {
