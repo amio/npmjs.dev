@@ -145,6 +145,7 @@ div {
 
   /* Styles for CodeMirror Editor */
   .editor-block {
+    position: relative;
     font-size: var(--font-size-s);
     padding: 0.6rem;
 
@@ -618,6 +619,90 @@ div {
   kbd + kbd {
     margin-left: 0.4em;
   }
+}
+
+/* ================================== */
+
+/* =      SHARE BUTTON STYLES       = */
+/* ================================== */
+
+.editor-share-button {
+  appearance: none;
+  -webkit-appearance: none;
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 3;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  color: rgba(0, 0, 0, 0.42);
+  font: inherit;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.editor-panel:hover .editor-share-button,
+.editor-share-button.share-copied,
+.editor-share-button.share-too-long {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.editor-share-button:hover {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.56);
+}
+
+.editor-share-button:focus-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  border-color: rgba(0, 122, 204, 0.24);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.1),
+    0 0 0 3px rgba(0, 122, 204, 0.12);
+}
+
+.editor-share-button .remixicon {
+  flex-shrink: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.editor-share-button.share-copied {
+  color: #28a745;
+}
+
+.editor-share-button.share-too-long {
+  color: #d73a49;
 }
 
 /* ================================== */

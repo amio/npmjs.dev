@@ -2,6 +2,8 @@ import React from 'react'
 import { Toggle, RadioSwitch, RadioSwitchOption } from './ui-elements'
 import { ExecutorAvailability, ExecutorType } from '../engine/types'
 import { EXECUTOR_DESCRIPTORS } from '../engine/executor-strategy'
+import { generateShareUrl } from '../utils/url-code'
+import { RiShareLine, RiCheckLine } from '@remixicon/react'
 
 import CodeMirror from '@uiw/react-codemirror'
 import { githubLight } from '@uiw/codemirror-theme-github'
@@ -40,6 +42,13 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   onExecutorTypeChange,
   executorAvailability,
 }) => {
+  const [shareStatus, setShareStatus] = React.useState<'idle' | 'copied' | 'too-long'>('idle')
+  const shareTimerRef = React.useRef<ReturnType<typeof setTimeout>>(null)
+  const sharedCodeRef = React.useRef<string | null>(null)
+
+  // Derive effective status: auto-reset to idle when code diverges from what was shared
+  const effectiveShareStatus = shareStatus !== 'idle' && code !== sharedCodeRef.current ? 'idle' : shareStatus
+
   // register keydown listener on window to handle CMD+Enter globally
   React.useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -56,6 +65,34 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       window.removeEventListener('keydown', handleGlobalKeyDown, { capture: true })
     }
   }, [onExecute, isLoading])
+
+  const handleShare = React.useCallback(async () => {
+    if (shareTimerRef.current) {
+      clearTimeout(shareTimerRef.current)
+      shareTimerRef.current = null
+    }
+
+    const url = generateShareUrl(code)
+
+    if (!url) {
+      setShareStatus('too-long')
+      shareTimerRef.current = setTimeout(() => setShareStatus('idle'), 3000)
+      return
+    }
+
+    // Update URL without creating history entry and track the shared code
+    history.replaceState(null, '', url)
+    sharedCodeRef.current = code
+
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      // Clipboard API may fail in insecure contexts; URL is still in address bar
+    }
+
+    setShareStatus('copied')
+    shareTimerRef.current = setTimeout(() => setShareStatus('idle'), 2500)
+  }, [code])
 
   const executorOptions: RadioSwitchOption[] = [
     {
@@ -81,9 +118,30 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     },
   ]
 
+  const shareButtonTitle =
+    effectiveShareStatus === 'copied'
+      ? 'Link copied to clipboard!'
+      : effectiveShareStatus === 'too-long'
+        ? 'Code is too long to share via URL'
+        : 'Copy shareable link to clipboard'
+
   return (
     <div className="editor-panel">
       <div className="editor-block">
+        <button
+          onClick={handleShare}
+          disabled={!code.trim()}
+          className={`editor-share-button ${effectiveShareStatus !== 'idle' ? `share-${effectiveShareStatus}` : ''}`}
+          title={shareButtonTitle}
+          aria-label={shareButtonTitle}
+          type="button"
+        >
+          {effectiveShareStatus === 'copied' ? (
+            <RiCheckLine className="remixicon" />
+          ) : (
+            <RiShareLine className="remixicon" />
+          )}
+        </button>
         <CodeMirror
           autoFocus
           height="36vh"

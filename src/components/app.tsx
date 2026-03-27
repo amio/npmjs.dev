@@ -14,6 +14,7 @@ import {
   selectAutoExecutor,
 } from '../engine/executor-strategy'
 import { saveCodeToStorage, loadCodeFromStorage } from '../utils/local-storage'
+import { getCodeFromUrlHash, clearCodeFromUrl } from '../utils/url-code'
 
 const createDefaultExecutorAvailability = (): Record<ExecutorType, ExecutorAvailability> => ({
   quickjs: { ready: false, reason: `${EXECUTOR_DESCRIPTORS.quickjs.label} is still initializing.` },
@@ -29,7 +30,11 @@ const App: React.FC = () => {
   const packageName = getPackageNameFromUrl(window.location.href)
 
   // Load saved code or use generated example
+  // Priority: URL hash > localStorage > generated default
   const getInitialCode = (pkg: string): string => {
+    const hashCode = getCodeFromUrlHash()
+    if (hashCode) return hashCode
+
     const savedCode = loadCodeFromStorage(pkg)
     return savedCode || generateExampleCode(pkg)
   }
@@ -79,9 +84,9 @@ const App: React.FC = () => {
           nextAvailability[executorName] = executor.isReady()
             ? { ready: true }
             : {
-                ready: false,
-                reason: executor.getUnavailableReason?.() || 'Initialization did not complete successfully.',
-              }
+              ready: false,
+              reason: executor.getUnavailableReason?.() || 'Initialization did not complete successfully.',
+            }
         })
       )
 
@@ -119,6 +124,15 @@ const App: React.FC = () => {
       saveCodeToStorage(packageName, code)
     }
   }, [code, packageName])
+
+  // Clear hash from URL when user starts editing (so stale shared code doesn't persist)
+  const handleCodeChange = useCallback(
+    (newCode: string) => {
+      setCode(newCode)
+      clearCodeFromUrl()
+    },
+    [],
+  )
 
   // Listen for URL changes and update code example
   useEffect(() => {
@@ -214,7 +228,7 @@ const App: React.FC = () => {
         <div className="runner-column">
           <CodeEditor
             code={code}
-            onChange={setCode}
+            onChange={handleCodeChange}
             onExecute={executeCode}
             isLoading={isLoading}
             executorType={executorType}
