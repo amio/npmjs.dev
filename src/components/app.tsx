@@ -6,17 +6,22 @@ import { JSExecutorEngine } from '../engine/quickjs-executor'
 import { BrowserExecutorEngine } from '../engine/browser-executor'
 import { CloudflareExecutorEngine } from '../engine/cloudflare-executor'
 import { ExecutionEngine, ExecutorAvailability, LogEntry, ExecutorType } from '../engine/types'
+import {
+  chooseFallbackExecutor,
+  createExecutorInfoLog,
+  EXECUTOR_DESCRIPTORS,
+  EXECUTOR_ORDER,
+  selectAutoExecutor,
+} from '../engine/executor-strategy'
 import { saveCodeToStorage, loadCodeFromStorage } from '../utils/local-storage'
 
-const EXECUTOR_ORDER: ExecutorType[] = ['quickjs', 'browser', 'cloudflare']
-
 const createDefaultExecutorAvailability = (): Record<ExecutorType, ExecutorAvailability> => ({
-  quickjs: { ready: false, reason: 'QuickJS is still initializing.' },
-  browser: { ready: false, reason: 'Browser sandbox is still initializing.' },
+  quickjs: { ready: false, reason: `${EXECUTOR_DESCRIPTORS.quickjs.label} is still initializing.` },
+  browser: { ready: false, reason: `${EXECUTOR_DESCRIPTORS.browser.label} is still initializing.` },
   cloudflare: {
     ready: false,
     reason:
-      'Cloudflare host Worker is not available yet. Deploy it first, or set VITE_CLOUDFLARE_EXECUTOR_API in local development.',
+      `${EXECUTOR_DESCRIPTORS.cloudflare.label} is not available yet. Deploy the host Worker first, or set VITE_CLOUDFLARE_EXECUTOR_API in local development.`,
   },
 })
 
@@ -34,6 +39,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [executorType, setExecutorType] = useState<ExecutorType>('quickjs')
+  const [hasManualExecutorSelection, setHasManualExecutorSelection] = useState(false)
   const [executorAvailability, setExecutorAvailability] = useState<Record<ExecutorType, ExecutorAvailability>>(
     createDefaultExecutorAvailability
   )
@@ -44,7 +50,10 @@ const App: React.FC = () => {
     cloudflare: new CloudflareExecutorEngine(),
   }))
 
-  const currentExecutor = executors[executorType]
+  const autoExecutorSelection = React.useMemo(
+    () => selectAutoExecutor(code, executorAvailability),
+    [code, executorAvailability]
+  )
 
   // Initialize execution engines
   useEffect(() => {
@@ -92,15 +101,15 @@ const App: React.FC = () => {
   }, [executors])
 
   useEffect(() => {
-    if (executorAvailability[executorType]?.ready) {
+    if (hasManualExecutorSelection && executorAvailability[executorType]?.ready) {
       return
     }
 
-    const fallbackExecutor = EXECUTOR_ORDER.find(type => executorAvailability[type].ready)
+    const fallbackExecutor = autoExecutorSelection.plan[0] || EXECUTOR_ORDER.find(type => executorAvailability[type].ready)
     if (fallbackExecutor && fallbackExecutor !== executorType) {
       setExecutorType(fallbackExecutor)
     }
-  }, [executorAvailability, executorType])
+  }, [autoExecutorSelection.plan, executorAvailability, executorType, hasManualExecutorSelection])
 
   // Save code to localStorage when it changes
   useEffect(() => {
@@ -119,6 +128,7 @@ const App: React.FC = () => {
       setCode(newCode)
       setLogs([])
       setError(undefined)
+      setHasManualExecutorSelection(false)
     }
 
     // Listen for popstate events (browser back/forward)
@@ -131,8 +141,16 @@ const App: React.FC = () => {
 
   // Execute code
   const executeCode = useCallback(async () => {
-    if (!currentExecutor.isReady()) {
-      setError(currentExecutor.getUnavailableReason?.() || 'Execution engine is not initialized yet')
+    const executionPlan = hasManualExecutorSelection
+      ? [executorType]
+      : autoExecutorSelection.plan.length > 0
+        ? autoExecutorSelection.plan
+        : [executorType]
+
+    const initialExecutor = executors[executionPlan[0]]
+
+    if (!initialExecutor?.isReady()) {
+      setError(initialExecutor?.getUnavailableReason?.() || 'Execution engine is not initialized yet')
       return
     }
 
@@ -141,16 +159,48 @@ const App: React.FC = () => {
     setLogs([])
 
     try {
-      const result = await currentExecutor.execute(code)
-      console.log('Execution result:', result)
-      setLogs(result.logs)
-      setError(result.error)
+      const infoLogs: LogEntry[] = []
+      let activeExecutorType = executionPlan[0]
+      let lastResult = await executors[activeExecutorType].execute(code)
+
+      if (!hasManualExecutorSelection) {
+        let remainingExecutors = executionPlan.slice(1)
+
+        while (lastResult.error) {
+          const fallbackExecutorType = chooseFallbackExecutor(activeExecutorType, lastResult.error, remainingExecutors)
+          if (!fallbackExecutorType) {
+            break
+          }
+
+          infoLogs.push(
+            createExecutorInfoLog(
+              `${EXECUTOR_DESCRIPTORS[activeExecutorType].label} hit an environment mismatch. Retrying with ${EXECUTOR_DESCRIPTORS[fallbackExecutorType].label}.`
+            )
+          )
+
+          activeExecutorType = fallbackExecutorType
+          remainingExecutors = remainingExecutors.filter(type => type !== fallbackExecutorType)
+          lastResult = await executors[activeExecutorType].execute(code)
+        }
+      }
+
+      if (!hasManualExecutorSelection && activeExecutorType !== executorType) {
+        setExecutorType(activeExecutorType)
+      }
+
+      setLogs([...infoLogs, ...lastResult.logs])
+      setError(lastResult.error)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
       setIsLoading(false)
     }
-  }, [code, currentExecutor])
+  }, [autoExecutorSelection.plan, code, executorType, executors, hasManualExecutorSelection])
+
+  const handleExecutorTypeChange = useCallback((type: ExecutorType) => {
+    setHasManualExecutorSelection(true)
+    setExecutorType(type)
+  }, [])
 
   return (
     <div className="app-container">
@@ -168,7 +218,7 @@ const App: React.FC = () => {
             onExecute={executeCode}
             isLoading={isLoading}
             executorType={executorType}
-            onExecutorTypeChange={setExecutorType}
+            onExecutorTypeChange={handleExecutorTypeChange}
             executorAvailability={executorAvailability}
           />
           <Output logs={logs} error={error} isLoading={isLoading} />
