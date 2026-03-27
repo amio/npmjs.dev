@@ -20,27 +20,6 @@ Or run it locally: `npm run dev`
 - Zero build step for adding packages—import and run
 - Clean React + TypeScript architecture (Vite powered)
 
-## Cloudflare Engine
-
-This repo now includes an optional Cloudflare-backed execution engine powered by [Dynamic Workers](https://developers.cloudflare.com/dynamic-workers/).
-
-- The browser app stays fully usable without Cloudflare.
-- `wrangler` deploys only the Dynamic Worker host at `src/cloudflare-worker/host.ts`.
-- The Vercel frontend can call that Worker through `VITE_CLOUDFLARE_EXECUTOR_API`.
-- Dynamic Workers run bundled user code in a fresh edge isolate with outbound Internet access blocked by default.
-
-### Deploy the Cloudflare Worker
-
-```sh
-npm install
-npm run deploy:cloudflare
-```
-
-After deploy:
-
-- Set `VITE_CLOUDFLARE_EXECUTOR_API` in Vercel to your Worker origin, for example `https://npmjs-dev.<subdomain>.workers.dev`
-- If your frontend origin is not `https://npmjs.dev`, update `ALLOWED_ORIGINS` in [wrangler.jsonc](/Volumes/TiSSD/git/npmjs.dev/wrangler.jsonc) or in the Cloudflare dashboard before deploying
-
 For local development:
 
 ```sh

@@ -121,7 +121,8 @@ export function Readme({ package: packageName }: ReadmeProps) {
             </p>
             <p>
               You can also change the URL manually to any package name, including scoped packages such as
-              <code>@babel/core</code>.
+              <code>@babel/core</code>. This project is open source on{' '}
+              <a href="https://github.com/amio/npmjs.dev">GitHub</a>.
             </p>
             <p className="readme-welcome-hint">
               Try examples:{' '}
