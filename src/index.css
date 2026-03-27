@@ -129,6 +129,32 @@ div {
   }
 }
 
+@media (max-width: 999px) {
+  .app-container {
+    .header-row {
+      padding-right: 0;
+
+      .app-header {
+        width: min(42rem, calc(100vw - 4rem));
+        margin: 0 auto;
+      }
+    }
+
+    .app-main {
+      .runner-column {
+        position: static;
+        inset: auto;
+        margin: 13vh auto 0;
+        padding: 0 2rem 2rem;
+      }
+
+      .doc-column {
+        display: none;
+      }
+    }
+  }
+}
+
 /* ================================== */
 /* =       CODE EDITOR STYLES       = */
 /* ================================== */
@@ -571,6 +597,7 @@ div {
     display: inline-flex;
     place-items: center;
     gap: 0.5em;
+    white-space: nowrap;
   }
   .ghost-button:hover {
     background-color: var(--button-hover-bg);
@@ -687,96 +714,31 @@ div {
   gap: 0.15rem;
 }
 
-.hover-hint {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
-.hover-hint-trigger {
-  border: none;
-  background: transparent;
-  color: var(--text-color-dim);
-  width: 1.75rem;
-  height: 1.75rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  cursor: help;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.hover-hint-trigger:hover,
-.hover-hint-trigger:focus-visible {
-  background: rgba(0, 0, 0, 0.06);
-  color: var(--text-color);
-  outline: none;
-}
-
-.hover-hint-panel {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 0.65rem);
-  width: min(20rem, calc(100vw - 1rem));
-  max-height: min(18rem, calc(100vh - 6rem));
-  overflow-y: auto;
-  padding: 0.75rem 0.85rem;
-  border-radius: 0.85rem;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16);
-  opacity: 0;
+.portal-tooltip {
+  position: fixed;
+  z-index: 10000;
+  transform: translate(-50%, calc(-100% - 0.5rem));
+  max-width: min(20rem, calc(100vw - 1rem));
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.5rem;
+  background: rgba(30, 30, 30, 0.92);
+  color: #f0f0f0;
+  font-size: 0.72rem;
+  line-height: 1.45;
   pointer-events: none;
-  transform: translateY(6px);
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 30;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  animation: portal-tooltip-in 0.15s ease;
 }
 
-.hover-hint:hover .hover-hint-panel,
-.hover-hint:focus-within .hover-hint-panel {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.hover-hint-title {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-color-dim);
-  margin-bottom: 0.35rem;
-}
-
-.hover-hint-body {
-  font-size: 0.78rem;
-  line-height: 1.4;
-  color: var(--text-color);
-}
-
-.executor-hint-content > p {
-  margin: 0 0 0.55rem;
-  color: var(--text-color-dim);
-}
-
-.executor-hint-list {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.executor-hint-item {
-  padding: 0;
-}
-
-.executor-hint-item h4 {
-  margin: 0 0 0.08rem;
-  font-size: 0.76rem;
-}
-
-.executor-hint-item p {
-  margin: 0;
-  color: var(--text-color-dim);
+@keyframes portal-tooltip-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 0.3rem));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, calc(-100% - 0.5rem));
+  }
 }
 
 /* ================================== */

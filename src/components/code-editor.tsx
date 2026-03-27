@@ -1,8 +1,7 @@
 import React from 'react'
-import { Toggle, RadioSwitch, RadioSwitchOption, HoverHint } from './ui-elements'
+import { Toggle, RadioSwitch, RadioSwitchOption } from './ui-elements'
 import { ExecutorAvailability, ExecutorType } from '../engine/types'
 import { EXECUTOR_DESCRIPTORS } from '../engine/executor-strategy'
-import { RiInformationLine } from '@remixicon/react'
 
 import CodeMirror from '@uiw/react-codemirror'
 import { githubLight } from '@uiw/codemirror-theme-github'
@@ -64,18 +63,21 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       label: EXECUTOR_DESCRIPTORS.quickjs.label,
       disabled: !executorAvailability.quickjs.ready,
       title: executorAvailability.quickjs.reason,
+      hint: `${EXECUTOR_DESCRIPTORS.quickjs.summary} ${EXECUTOR_DESCRIPTORS.quickjs.hint}`,
     },
     {
       value: 'browser',
       label: EXECUTOR_DESCRIPTORS.browser.label,
       disabled: !executorAvailability.browser.ready,
       title: executorAvailability.browser.reason,
+      hint: `${EXECUTOR_DESCRIPTORS.browser.summary} ${EXECUTOR_DESCRIPTORS.browser.hint}`,
     },
     {
       value: 'cloudflare',
       label: EXECUTOR_DESCRIPTORS.cloudflare.label,
       disabled: !executorAvailability.cloudflare.ready,
       title: executorAvailability.cloudflare.reason,
+      hint: `${EXECUTOR_DESCRIPTORS.cloudflare.summary} ${EXECUTOR_DESCRIPTORS.cloudflare.hint}`,
     },
   ]
 
@@ -108,25 +110,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
                 onChange={value => onExecutorTypeChange(value as ExecutorType)}
               />
             </div>
-            <HoverHint
-              label={<RiInformationLine size={15} />}
-              title="Runtime guide"
-              className="executor-hint"
-            >
-              <div className="executor-hint-content">
-                <p>Automatic mode picks a default runtime, but you can still switch anytime.</p>
-                <div className="executor-hint-list" role="list">
-                  {(['quickjs', 'browser', 'cloudflare'] as ExecutorType[]).map(type => (
-                    <section key={type} className="executor-hint-item" role="listitem">
-                      <h4>{EXECUTOR_DESCRIPTORS[type].label}</h4>
-                      <p>
-                        {EXECUTOR_DESCRIPTORS[type].summary} {EXECUTOR_DESCRIPTORS[type].hint}
-                      </p>
-                    </section>
-                  ))}
-                </div>
-              </div>
-            </HoverHint>
           </div>
           <Toggle active={isLoading}>
             <div className="spinner" />
