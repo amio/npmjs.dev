@@ -16,12 +16,12 @@ export const EXECUTOR_DESCRIPTORS: Record<ExecutorType, ExecutorDescriptor> = {
     hint: 'Instant startup.',
   },
   worker: {
-    label: 'Worker Sandbox',
+    label: 'Worker',
     summary: 'Runs in a dedicated worker with Node-compatible shims powered by unenv.',
     hint: 'Best for Node-style packages without DOM access.',
   },
   browser: {
-    label: 'Browser Sandbox',
+    label: 'Browser',
     summary: 'Runs in a sandboxed browser module runtime with DOM APIs and import maps.',
     hint: 'Best for browser APIs and browser-first packages.',
   },

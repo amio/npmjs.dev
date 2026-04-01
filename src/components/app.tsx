@@ -290,7 +290,7 @@ export const generateExampleCode = (packageName: string): string => {
     .replace(/^[0-9]/, '_$&') // Add underscore prefix if starts with number
     .replace(/[^a-zA-Z0-9_]/g, '') // Remove other invalid characters
 
-  return `import * as ${variableName} from '${cleanedPackageName}'\n\nconsole.log(\n  Object.keys(${variableName})\n)`
+  return `import * as ${variableName} from '${cleanedPackageName}'\n\nconsole.log(${variableName})`
 }
 
 export default App

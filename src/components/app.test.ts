@@ -12,7 +12,7 @@ describe('app helpers', () => {
     const exampleCode = generateExampleCode('silabajs')
 
     assert.match(exampleCode, /import \* as silabajs from 'silabajs'/)
-    assert.match(exampleCode, /Object\.keys\(silabajs\)/)
+    assert.match(exampleCode, /console\.log\(silabajs\)/)
   })
 
   test('sanitizes invalid characters before generating example code', () => {

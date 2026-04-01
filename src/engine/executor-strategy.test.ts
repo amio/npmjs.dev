@@ -99,7 +99,7 @@ describe('executor selection strategy', () => {
 
   test('exposes user-facing labels for each executor', () => {
     assert.strictEqual(EXECUTOR_DESCRIPTORS.quickjs.label, 'QuickJS')
-    assert.strictEqual(EXECUTOR_DESCRIPTORS.worker.label, 'Worker Sandbox')
-    assert.strictEqual(EXECUTOR_DESCRIPTORS.browser.label, 'Browser Sandbox')
+    assert.strictEqual(EXECUTOR_DESCRIPTORS.worker.label, 'Worker')
+    assert.strictEqual(EXECUTOR_DESCRIPTORS.browser.label, 'Browser')
   })
 })
