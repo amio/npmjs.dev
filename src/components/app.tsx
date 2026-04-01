@@ -3,6 +3,7 @@ import { CodeEditor } from './code-editor'
 import { Output } from './output'
 import { Readme } from './readme'
 import { JSExecutorEngine } from '../engine/quickjs-executor'
+import { WorkerExecutorEngine } from '../engine/worker-executor'
 import { BrowserExecutorEngine } from '../engine/browser-executor'
 import { ExecutionEngine, ExecutorAvailability, LogEntry, ExecutorType } from '../engine/types'
 import {
@@ -17,6 +18,7 @@ import { getCodeFromUrlHash, clearCodeFromUrl } from '../utils/url-code'
 
 const createDefaultExecutorAvailability = (): Record<ExecutorType, ExecutorAvailability> => ({
   quickjs: { ready: false, reason: `${EXECUTOR_DESCRIPTORS.quickjs.label} is still initializing.` },
+  worker: { ready: false, reason: `${EXECUTOR_DESCRIPTORS.worker.label} is still initializing.` },
   browser: { ready: false, reason: `${EXECUTOR_DESCRIPTORS.browser.label} is still initializing.` },
 })
 
@@ -45,6 +47,7 @@ const App: React.FC = () => {
 
   const [executors] = useState<Record<ExecutorType, ExecutionEngine>>(() => ({
     quickjs: new JSExecutorEngine(),
+    worker: new WorkerExecutorEngine(),
     browser: new BrowserExecutorEngine(),
   }))
 

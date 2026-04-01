@@ -23,4 +23,4 @@ export interface ExecutorAvailability {
   reason?: string
 }
 
-export type ExecutorType = 'quickjs' | 'browser'
+export type ExecutorType = 'quickjs' | 'worker' | 'browser'
