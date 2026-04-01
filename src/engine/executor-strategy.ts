@@ -1,7 +1,7 @@
 import { ExecutorAvailability, ExecutorType, LogEntry } from './types'
 import { parseModuleDeps } from './utils'
 
-export const EXECUTOR_ORDER: ExecutorType[] = ['quickjs', 'browser']
+export const EXECUTOR_ORDER: ExecutorType[] = ['quickjs', 'worker', 'browser']
 
 export interface ExecutorDescriptor {
   label: string
@@ -15,10 +15,15 @@ export const EXECUTOR_DESCRIPTORS: Record<ExecutorType, ExecutorDescriptor> = {
     summary: 'Runs in a QuickJS WASM VM with npm support via esm.sh.',
     hint: 'Instant startup.',
   },
+  worker: {
+    label: 'Worker Sandbox',
+    summary: 'Runs in a dedicated worker with Node-compatible shims powered by unenv.',
+    hint: 'Best for Node-style packages without DOM access.',
+  },
   browser: {
     label: 'Browser Sandbox',
-    summary: 'Runs inside a real browser iframe with DOM APIs and import maps.',
-    hint: 'Best for browser-first packages.',
+    summary: 'Runs in a sandboxed browser module runtime with DOM APIs and import maps.',
+    hint: 'Best for browser APIs and browser-first packages.',
   },
 }
 
@@ -30,6 +35,8 @@ interface AutoExecutorSelection {
 const BROWSER_GLOBAL_PATTERN =
   /\b(window|document|navigator|location|history|localStorage|sessionStorage|requestAnimationFrame|cancelAnimationFrame|customElements|HTMLElement|HTMLCanvasElement|MutationObserver|ResizeObserver)\b/
 
+const NODE_GLOBAL_PATTERN = /\b(process|Buffer|global)\b/
+
 const NODE_ONLY_PATTERN =
   /\b(process\.stdin|process\.stdout|process\.stderr|Buffer\b|__dirname\b|__filename\b|require\s*\(|module\.exports\b)\b/
 
@@ -38,6 +45,9 @@ const MODULE_RESOLUTION_ERROR_PATTERN =
 
 const BROWSER_ENVIRONMENT_ERROR_PATTERN =
   /(window is not defined|document is not defined|navigator is not defined|HTMLElement is not defined|customElements is not defined|localStorage is not defined|sessionStorage is not defined|MutationObserver is not defined|ResizeObserver is not defined)/i
+
+const NODE_ENVIRONMENT_ERROR_PATTERN =
+  /(process is not defined|Buffer is not defined|global is not defined|__dirname is not defined|__filename is not defined|node:)/i
 
 const KNOWN_BROWSER_PACKAGES = [
   'react',
@@ -69,6 +79,7 @@ const hasKnownBrowserPackage = (moduleNames: string[]): boolean =>
 
 const hasNodeOnlySignals = (code: string, moduleNames: string[]): boolean =>
   NODE_ONLY_PATTERN.test(code) ||
+  NODE_GLOBAL_PATTERN.test(code) ||
   moduleNames.some(moduleName => moduleName.startsWith('node:')) ||
   moduleNames.some(moduleName =>
     ['fs', 'path', 'net', 'tls', 'child_process', 'worker_threads', 'cluster', 'readline'].includes(moduleName)
@@ -92,16 +103,16 @@ export const selectAutoExecutor = (
   let reason: string
 
   if (hasBrowserSignals) {
-    preferredExecutors = ['browser', 'quickjs']
+    preferredExecutors = ['browser', 'worker', 'quickjs']
     reason = 'browser APIs or browser-first packages were detected.'
-  } else if (hasExternalModules) {
-    preferredExecutors = ['quickjs', 'browser']
-    reason = 'npm imports were detected. Running locally via esm.sh first.'
   } else if (hasNodeSignals) {
-    preferredExecutors = ['quickjs', 'browser']
-    reason = 'Node.js-specific APIs were detected, so the local sandboxes will try their closest-compatible runtime first.'
+    preferredExecutors = ['worker', 'quickjs', 'browser']
+    reason = 'Node.js APIs or Node-style globals were detected.'
+  } else if (hasExternalModules) {
+    preferredExecutors = ['quickjs', 'worker', 'browser']
+    reason = 'npm imports were detected. Running locally via esm.sh first.'
   } else {
-    preferredExecutors = ['quickjs', 'browser']
+    preferredExecutors = ['quickjs', 'worker', 'browser']
     reason = 'the script looks lightweight, so the fastest VM is preferred.'
   }
 
@@ -126,13 +137,20 @@ export const chooseFallbackExecutor = (
     return remainingExecutors.find(executor => executor === 'browser')
   }
 
+  if (NODE_ENVIRONMENT_ERROR_PATTERN.test(error)) {
+    return remainingExecutors.find(executor => executor === 'worker')
+  }
+
   if (MODULE_RESOLUTION_ERROR_PATTERN.test(error)) {
     if (attemptedExecutor === 'browser') {
       return remainingExecutors.find(executor => executor === 'quickjs')
     }
 
     if (attemptedExecutor === 'quickjs') {
-      return remainingExecutors.find(executor => executor === 'browser')
+      return (
+        remainingExecutors.find(executor => executor === 'worker') ||
+        remainingExecutors.find(executor => executor === 'browser')
+      )
     }
   }
 

@@ -103,6 +103,13 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       hint: `${EXECUTOR_DESCRIPTORS.quickjs.summary} ${EXECUTOR_DESCRIPTORS.quickjs.hint}`,
     },
     {
+      value: 'worker',
+      label: EXECUTOR_DESCRIPTORS.worker.label,
+      disabled: !executorAvailability.worker.ready,
+      title: executorAvailability.worker.reason,
+      hint: `${EXECUTOR_DESCRIPTORS.worker.summary} ${EXECUTOR_DESCRIPTORS.worker.hint}`,
+    },
+    {
       value: 'browser',
       label: EXECUTOR_DESCRIPTORS.browser.label,
       disabled: !executorAvailability.browser.ready,

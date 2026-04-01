@@ -10,9 +10,10 @@ Or run it locally: `npm run dev`
 
 ## Features
 
-- Dual execution engines:
+- Three execution engines:
   - QuickJS (WASM) – fast startup, sandboxed
-  - Browser (iframe + import map via esm.sh)
+  - Worker Sandbox (Node-compatible shims via unenv)
+  - Browser Sandbox (DOM APIs + import maps via esm.sh)
 - Automatic sample code based on URL package
 - Live console capture (log / info / warn / error)
 - README auto-fetch from unpkg (fallback name variants)
