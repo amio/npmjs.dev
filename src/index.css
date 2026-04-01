@@ -129,7 +129,6 @@ div {
   }
 }
 
-
 /* ================================== */
 /* =       CODE EDITOR STYLES       = */
 /* ================================== */
@@ -233,6 +232,15 @@ div {
 .console-output {
   height: 100%;
   overflow: auto;
+}
+
+.output-empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 8rem;
 }
 
 .log-entry {
@@ -666,7 +674,7 @@ div {
     border-color 0.2s ease;
 }
 
-.editor-panel:hover .editor-share-button,
+.editor-panel.has-shareable-code:hover .editor-share-button,
 .editor-share-button.share-copied,
 .editor-share-button.share-too-long {
   opacity: 1;

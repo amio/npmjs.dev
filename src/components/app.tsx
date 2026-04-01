@@ -39,6 +39,7 @@ const App: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [error, setError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
+  const [hasExecuted, setHasExecuted] = useState(false)
   const [executorType, setExecutorType] = useState<ExecutorType>('quickjs')
   const [hasManualExecutorSelection, setHasManualExecutorSelection] = useState(false)
   const [executorAvailability, setExecutorAvailability] = useState<Record<ExecutorType, ExecutorAvailability>>(
@@ -80,9 +81,9 @@ const App: React.FC = () => {
           nextAvailability[executorName] = executor.isReady()
             ? { ready: true }
             : {
-              ready: false,
-              reason: executor.getUnavailableReason?.() || 'Initialization did not complete successfully.',
-            }
+                ready: false,
+                reason: executor.getUnavailableReason?.() || 'Initialization did not complete successfully.',
+              }
         })
       )
 
@@ -106,7 +107,8 @@ const App: React.FC = () => {
       return
     }
 
-    const fallbackExecutor = autoExecutorSelection.plan[0] || EXECUTOR_ORDER.find(type => executorAvailability[type].ready)
+    const fallbackExecutor =
+      autoExecutorSelection.plan[0] || EXECUTOR_ORDER.find(type => executorAvailability[type].ready)
     if (fallbackExecutor && fallbackExecutor !== executorType) {
       setExecutorType(fallbackExecutor)
     }
@@ -122,13 +124,11 @@ const App: React.FC = () => {
   }, [code, packageName])
 
   // Clear hash from URL when user starts editing (so stale shared code doesn't persist)
-  const handleCodeChange = useCallback(
-    (newCode: string) => {
-      setCode(newCode)
-      clearCodeFromUrl()
-    },
-    [],
-  )
+  const handleCodeChange = useCallback((newCode: string) => {
+    setCode(newCode)
+    clearCodeFromUrl()
+    setHasExecuted(false)
+  }, [])
 
   // Listen for URL changes and update code example
   useEffect(() => {
@@ -138,6 +138,7 @@ const App: React.FC = () => {
       setCode(newCode)
       setLogs([])
       setError(undefined)
+      setHasExecuted(false)
       setHasManualExecutorSelection(false)
     }
 
@@ -161,6 +162,7 @@ const App: React.FC = () => {
 
     if (!initialExecutor?.isReady()) {
       setError(initialExecutor?.getUnavailableReason?.() || 'Execution engine is not initialized yet')
+      setHasExecuted(true)
       return
     }
 
@@ -200,8 +202,10 @@ const App: React.FC = () => {
 
       setLogs([...infoLogs, ...lastResult.logs])
       setError(lastResult.error)
+      setHasExecuted(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
+      setHasExecuted(true)
     } finally {
       setIsLoading(false)
     }
@@ -231,7 +235,7 @@ const App: React.FC = () => {
             onExecutorTypeChange={handleExecutorTypeChange}
             executorAvailability={executorAvailability}
           />
-          <Output logs={logs} error={error} isLoading={isLoading} />
+          <Output logs={logs} error={error} hasExecuted={hasExecuted} isLoading={isLoading} />
           <footer className="app-footer">
             <a href="https://github.com/amio/npmjs.dev" target="_blank" rel="noopener noreferrer">
               npmjs.dev

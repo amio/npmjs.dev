@@ -1,11 +1,7 @@
 import assert from 'node:assert'
 import { describe, test } from 'node:test'
 import { ExecutorAvailability, ExecutorType } from './types'
-import {
-  chooseFallbackExecutor,
-  EXECUTOR_DESCRIPTORS,
-  selectAutoExecutor,
-} from './executor-strategy'
+import { chooseFallbackExecutor, EXECUTOR_DESCRIPTORS, selectAutoExecutor } from './executor-strategy'
 
 const createAvailability = (overrides: Partial<Record<ExecutorType, ExecutorAvailability>> = {}) =>
   ({

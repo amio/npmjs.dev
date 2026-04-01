@@ -75,7 +75,9 @@ const isExternalModule = (moduleName: string): boolean =>
 const getExternalModules = (code: string): string[] => parseModuleDeps(code).filter(isExternalModule)
 
 const hasKnownBrowserPackage = (moduleNames: string[]): boolean =>
-  moduleNames.some(moduleName => KNOWN_BROWSER_PACKAGES.some(prefix => moduleName === prefix || moduleName.startsWith(`${prefix}/`)))
+  moduleNames.some(moduleName =>
+    KNOWN_BROWSER_PACKAGES.some(prefix => moduleName === prefix || moduleName.startsWith(`${prefix}/`))
+  )
 
 const hasNodeOnlySignals = (code: string, moduleNames: string[]): boolean =>
   NODE_ONLY_PATTERN.test(code) ||

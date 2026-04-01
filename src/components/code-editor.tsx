@@ -45,6 +45,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const [shareStatus, setShareStatus] = React.useState<'idle' | 'copied' | 'too-long'>('idle')
   const shareTimerRef = React.useRef<ReturnType<typeof setTimeout>>(null)
   const sharedCodeRef = React.useRef<string | null>(null)
+  const hasShareableCode = code.trim().length > 0
 
   // Derive effective status: auto-reset to idle when code diverges from what was shared
   const effectiveShareStatus = shareStatus !== 'idle' && code !== sharedCodeRef.current ? 'idle' : shareStatus
@@ -126,11 +127,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         : 'Copy shareable link to clipboard'
 
   return (
-    <div className="editor-panel">
+    <div className={`editor-panel ${hasShareableCode ? 'has-shareable-code' : ''}`}>
       <div className="editor-block">
         <button
           onClick={handleShare}
-          disabled={!code.trim()}
+          disabled={!hasShareableCode}
           className={`editor-share-button ${effectiveShareStatus !== 'idle' ? `share-${effectiveShareStatus}` : ''}`}
           title={shareButtonTitle}
           aria-label={shareButtonTitle}

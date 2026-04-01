@@ -5,10 +5,11 @@ import { RiErrorWarningLine } from '@remixicon/react'
 export interface OutputDisplayProps {
   logs: LogEntry[]
   error?: string
+  hasExecuted: boolean
   isLoading: boolean
 }
 
-export const Output: React.FC<OutputDisplayProps> = ({ logs, error }) => {
+export const Output: React.FC<OutputDisplayProps> = ({ logs, error, hasExecuted, isLoading }) => {
   // Safely convert error to string for display
   const formatError = (value: any): string => {
     if (typeof value === 'string') {
@@ -65,6 +66,13 @@ export const Output: React.FC<OutputDisplayProps> = ({ logs, error }) => {
               <pre>{formatLogContent(log.content)}</pre>
             </div>
           ))}
+        </div>
+      )}
+
+      {!error && !isLoading && hasExecuted && logs.length === 0 && (
+        <div className="output-empty-state placeholder">
+          No output
+          <small>Execution finished without console logs or errors.</small>
         </div>
       )}
     </div>
