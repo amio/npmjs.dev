@@ -9,7 +9,9 @@ export interface ReadmeProps {
 
 const QUICK_DEMOS = [
   { name: 'lodash', href: '/lodash' },
-  { name: 'silabajs', href: '/silabajs' },
+  { name: 'uuid', href: '/uuid' },
+  { name: 'marked', href: '/marked' },
+  { name: 'js-yaml', href: '/js-yaml' },
 ]
 
 const isWelcomeMode = (packageName: string) => !packageName
@@ -115,23 +117,25 @@ export function Readme({ package: packageName }: ReadmeProps) {
         <div className="readme-content readme-welcome-layout">
           <div className="readme-placeholder readme-welcome">
             <h2>Welcome to npmjs:dev</h2>
-            <p>
-              Explore npm packages directly in the browser. Pick a demo package below to automatically load sample code
-              on the left and view package documentation here.
-            </p>
-            <p>
-              You can also change the URL manually to any package name, including scoped packages such as
-              <code>@babel/core</code>. This project is open source on{' '}
-              <a href="https://github.com/amio/npmjs.dev">GitHub</a>.
-            </p>
+            <p className="readme-welcome-lead">A playground for npm packages.</p>
+            <div className="readme-welcome-mapping" aria-label="URL mapping example">
+              <code>npmjs.com/{'{package-name}'}</code>
+              <code>npmjs.dev/{'{package-name}'}</code>
+            </div>
             <p className="readme-welcome-hint">
-              Try examples:{' '}
+              Swap <code>com</code> for <code>dev</code> to open the matching playground.
+            </p>
+            <p className="readme-welcome-samples">
+              Try samples:{' '}
               {QUICK_DEMOS.map((demo, index) => (
                 <span key={demo.name}>
-                  {index > 0 && ' · '}
+                  {index > 0 && ', '}
                   <a href={demo.href}>{demo.name}</a>
                 </span>
               ))}
+            </p>
+            <p className="readme-welcome-source">
+              <a href="https://github.com/amio/npmjs.dev">Source on GitHub</a>.
             </p>
           </div>
         </div>

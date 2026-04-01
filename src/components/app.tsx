@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { RiGithubFill } from '@remixicon/react'
 import { CodeEditor } from './code-editor'
 import { Output } from './output'
 import { Readme } from './readme'
@@ -237,10 +238,11 @@ const App: React.FC = () => {
           />
           <Output logs={logs} error={error} hasExecuted={hasExecuted} isLoading={isLoading} />
           <footer className="app-footer">
-            <a href="https://github.com/amio/npmjs.dev" target="_blank" rel="noopener noreferrer">
+            <a className="app-footer-link" href="https://github.com/amio/npmjs.dev" target="_blank" rel="noopener noreferrer">
+              <RiGithubFill size={14} aria-hidden="true" />
               npmjs.dev
-            </a>{' '}
-            is not affiliated with npm, Inc.
+            </a>
+            <span>is not affiliated with npm, Inc.</span>
           </footer>
         </div>
         <div className="doc-column">
