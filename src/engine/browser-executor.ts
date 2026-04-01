@@ -1,9 +1,11 @@
 import { ExecutionResult } from './types'
+import { addCodeDependenciesToImportMap, addSpecifierToImportMap, stringifyImportMap } from './module-resolution'
 
 export class BrowserExecutorEngine {
   private iframe: HTMLIFrameElement | null = null
   private isInitialized = false
   private packageImportMap: Record<string, string> = {}
+  private importMapSnapshot = stringifyImportMap({})
 
   /**
    * Add a package to the import map
@@ -11,12 +13,8 @@ export class BrowserExecutorEngine {
    * @param version - Optional version (defaults to latest)
    */
   addPackage(packageName: string, version?: string): void {
-    const versionSuffix = version ? `@${version}` : ''
-    this.packageImportMap[packageName] = `https://esm.sh/${packageName}${versionSuffix}`
-
-    // Add support for submodules (e.g., 'lodash/debounce')
-    if (!packageName.endsWith('/')) {
-      this.packageImportMap[`${packageName}/`] = `https://esm.sh/${packageName}${versionSuffix}/`
+    if (addSpecifierToImportMap(this.packageImportMap, packageName, version)) {
+      this.importMapSnapshot = this.generateImportMap()
     }
   }
 
@@ -24,13 +22,7 @@ export class BrowserExecutorEngine {
    * Generate import map JSON for the iframe
    */
   private generateImportMap(): string {
-    const importMap = {
-      imports: {
-        ...this.packageImportMap,
-      },
-    }
-
-    return JSON.stringify(importMap, null, 2)
+    return stringifyImportMap(this.packageImportMap)
   }
 
   /**
@@ -38,42 +30,7 @@ export class BrowserExecutorEngine {
    * @param code - The code to analyze
    */
   private parseAndAddImports(code: string): void {
-    // Match import statements: import ... from 'package-name'
-    const importRegex = /import\s+(?:(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+)?['"]([^'"]+)['"];?/g
-    let match
-
-    while ((match = importRegex.exec(code)) !== null) {
-      const packageName = match[1]
-
-      // Skip relative imports and URLs
-      if (packageName.startsWith('./') || packageName.startsWith('../') || packageName.startsWith('http')) {
-        continue
-      }
-
-      // Extract base package name (handle scoped packages and submodules)
-      let basePackage = packageName
-      if (packageName.startsWith('@')) {
-        // Scoped package: @scope/package or @scope/package/submodule
-        const parts = packageName.split('/')
-        if (parts.length >= 2) {
-          basePackage = `${parts[0]}/${parts[1]}`
-        }
-      } else {
-        // Regular package: package or package/submodule
-        basePackage = packageName.split('/')[0]
-      }
-
-      // Add the full import path to the import map
-      if (!this.packageImportMap[packageName]) {
-        this.packageImportMap[packageName] = `https://esm.sh/${packageName}`
-      }
-
-      // Also add the base package if different
-      if (basePackage !== packageName && !this.packageImportMap[basePackage]) {
-        this.packageImportMap[basePackage] = `https://esm.sh/${basePackage}`
-        this.packageImportMap[`${basePackage}/`] = `https://esm.sh/${basePackage}/`
-      }
-    }
+    addCodeDependenciesToImportMap(this.packageImportMap, code)
   }
 
   async initialize(): Promise<void> {
@@ -234,11 +191,14 @@ export class BrowserExecutorEngine {
 
   async execute(code: string): Promise<ExecutionResult> {
     try {
+      const previousImportMapSnapshot = this.importMapSnapshot
+
       // Parse imports and update import map
       this.parseAndAddImports(code)
+      this.importMapSnapshot = this.generateImportMap()
 
       // Reinitialize iframe with updated import map if new packages were added
-      if (!this.isInitialized || Object.keys(this.packageImportMap).length > 0) {
+      if (!this.isInitialized || this.importMapSnapshot !== previousImportMapSnapshot) {
         await this.reinitializeIframe()
       }
 
@@ -315,6 +275,7 @@ export class BrowserExecutorEngine {
    */
   clearPackages(): void {
     this.packageImportMap = {}
+    this.importMapSnapshot = this.generateImportMap()
   }
 
   isReady(): boolean {
@@ -327,5 +288,6 @@ export class BrowserExecutorEngine {
     }
     this.iframe = null
     this.isInitialized = false
+    this.importMapSnapshot = this.generateImportMap()
   }
 }

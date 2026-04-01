@@ -46,6 +46,7 @@ describe('parseModuleDeps', () => {
     const code = `
       import React from 'react';
       import { useState } from 'react';
+      const loadRuntime = () => import('react');
       import { foo } from 'lodash';
       export { utils } from './utils';
       export * from './helpers';
@@ -115,6 +116,7 @@ describe('parseModuleDeps', () => {
       import React, { useState, useEffect } from 'react';
       import * as lodash from 'lodash';
       import { debounce } from 'lodash';
+      const loadMoo = () => import('moo');
       import './styles.css';
       import api from '../api/client';
       
@@ -136,6 +138,7 @@ describe('parseModuleDeps', () => {
       './validators',
       '@shared/constants',
       'lodash',
+      'moo',
       'react',
     ])
   })

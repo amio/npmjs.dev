@@ -1,9 +1,11 @@
 import { QuickJSAsyncWASMModule, newQuickJSAsyncWASMModule } from 'quickjs-emscripten'
 import { LogEntry, ExecutionResult } from './types'
+import { addCodeDependenciesToImportMap, resolveModuleUrl } from './module-resolution'
 
 export class JSExecutorEngine {
   private quickJSModule: QuickJSAsyncWASMModule | null = null
   private isInitialized = false
+  private packageImportMap: Record<string, string> = {}
 
   async initialize(): Promise<void> {
     if (this.isInitialized) return
@@ -31,18 +33,7 @@ export class JSExecutorEngine {
 
   /** Resolve all module requests to https://esm.sh */
   private resolveModuleUrl(moduleName: string): string {
-    // Check if it's already a full HTTP/HTTPS URL
-    if (moduleName.startsWith('http://') || moduleName.startsWith('https://')) {
-      return moduleName
-    }
-
-    // Check if it starts with `/{package}` or `/@{namespace}/{package}`
-    if (moduleName.match(/^\/(@?[\w-]+\/)?[\w-]+/)) {
-      return `https://esm.sh${moduleName}`
-    }
-
-    // Otherwise, treat it as a package name
-    return `https://esm.sh/${moduleName}`
+    return resolveModuleUrl(this.packageImportMap, moduleName)
   }
 
   private configureRuntime(runtime: any): void {
@@ -144,6 +135,8 @@ export class JSExecutorEngine {
     }
 
     try {
+      addCodeDependenciesToImportMap(this.packageImportMap, code)
+
       const runtime = this.quickJSModule.newRuntime()
       this.configureRuntime(runtime)
 
@@ -210,5 +203,6 @@ export class JSExecutorEngine {
     // QuickJS WASM module cleanup is automatic
     this.quickJSModule = null
     this.isInitialized = false
+    this.packageImportMap = {}
   }
 }
