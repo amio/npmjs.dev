@@ -10,10 +10,9 @@ Or run it locally: `npm run dev`
 
 ## Features
 
-- Triple execution engines:
+- Dual execution engines:
   - QuickJS (WASM) – fast startup, sandboxed
   - Browser (iframe + import map via esm.sh)
-  - Cloudflare Dynamic Workers – runtime bundling + edge isolate execution
 - Automatic sample code based on URL package
 - Live console capture (log / info / warn / error)
 - README auto-fetch from unpkg (fallback name variants)
@@ -26,9 +25,7 @@ For local development:
 npm run dev
 ```
 
-This starts Wrangler and Vite together. In development, the browser uses same-origin `/api/*` requests and Vite proxies them to the local Worker automatically.
-
-See [docs/cloudflare-dynamic-workers.md](/Volumes/TiSSD/git/npmjs.dev/docs/cloudflare-dynamic-workers.md) for the design notes, tradeoffs, and rollout details.
+This starts the Vite dev server.
 
 ## License
 

@@ -4,7 +4,6 @@ import { Output } from './output'
 import { Readme } from './readme'
 import { JSExecutorEngine } from '../engine/quickjs-executor'
 import { BrowserExecutorEngine } from '../engine/browser-executor'
-import { CloudflareExecutorEngine } from '../engine/cloudflare-executor'
 import { ExecutionEngine, ExecutorAvailability, LogEntry, ExecutorType } from '../engine/types'
 import {
   chooseFallbackExecutor,
@@ -19,11 +18,6 @@ import { getCodeFromUrlHash, clearCodeFromUrl } from '../utils/url-code'
 const createDefaultExecutorAvailability = (): Record<ExecutorType, ExecutorAvailability> => ({
   quickjs: { ready: false, reason: `${EXECUTOR_DESCRIPTORS.quickjs.label} is still initializing.` },
   browser: { ready: false, reason: `${EXECUTOR_DESCRIPTORS.browser.label} is still initializing.` },
-  cloudflare: {
-    ready: false,
-    reason:
-      `${EXECUTOR_DESCRIPTORS.cloudflare.label} is not available yet. Deploy the host Worker first, or set VITE_CLOUDFLARE_EXECUTOR_API in local development.`,
-  },
 })
 
 const App: React.FC = () => {
@@ -52,7 +46,6 @@ const App: React.FC = () => {
   const [executors] = useState<Record<ExecutorType, ExecutionEngine>>(() => ({
     quickjs: new JSExecutorEngine(),
     browser: new BrowserExecutorEngine(),
-    cloudflare: new CloudflareExecutorEngine(),
   }))
 
   const autoExecutorSelection = React.useMemo(

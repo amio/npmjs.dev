@@ -9,14 +9,6 @@
       "status": 307
     },
     {
-      "src": "/api/engines/cloudflare",
-      "dest": "/api/engines/cloudflare.js"
-    },
-    {
-      "src": "/api/execute/cloudflare",
-      "dest": "/api/execute/cloudflare.js"
-    },
-    {
       "handle": "filesystem"
     },
     {

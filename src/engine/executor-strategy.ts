@@ -1,7 +1,7 @@
 import { ExecutorAvailability, ExecutorType, LogEntry } from './types'
 import { parseModuleDeps } from './utils'
 
-export const EXECUTOR_ORDER: ExecutorType[] = ['quickjs', 'browser', 'cloudflare']
+export const EXECUTOR_ORDER: ExecutorType[] = ['quickjs', 'browser']
 
 export interface ExecutorDescriptor {
   label: string
@@ -19,11 +19,6 @@ export const EXECUTOR_DESCRIPTORS: Record<ExecutorType, ExecutorDescriptor> = {
     label: 'Browser Sandbox',
     summary: 'Runs inside a real browser iframe with DOM APIs and import maps.',
     hint: 'Best for browser-first packages.',
-  },
-  cloudflare: {
-    label: 'CF Worker',
-    summary: 'Bundles npm dependencies and runs them in a remote Cloudflare Worker runtime.',
-    hint: 'Auto-selected only when browser runtimes cannot handle the code.',
   },
 }
 
@@ -97,16 +92,16 @@ export const selectAutoExecutor = (
   let reason: string
 
   if (hasBrowserSignals) {
-    preferredExecutors = ['browser', 'quickjs', 'cloudflare']
+    preferredExecutors = ['browser', 'quickjs']
     reason = 'browser APIs or browser-first packages were detected.'
   } else if (hasExternalModules) {
-    preferredExecutors = ['quickjs', 'browser', 'cloudflare']
+    preferredExecutors = ['quickjs', 'browser']
     reason = 'npm imports were detected. Running locally via esm.sh first.'
   } else if (hasNodeSignals) {
-    preferredExecutors = ['cloudflare', 'quickjs', 'browser']
-    reason = 'Node.js-specific APIs were detected, which are not supported in browser runtimes.'
+    preferredExecutors = ['quickjs', 'browser']
+    reason = 'Node.js-specific APIs were detected, so the local sandboxes will try their closest-compatible runtime first.'
   } else {
-    preferredExecutors = ['quickjs', 'browser', 'cloudflare']
+    preferredExecutors = ['quickjs', 'browser']
     reason = 'the script looks lightweight, so the fastest VM is preferred.'
   }
 
@@ -132,12 +127,12 @@ export const chooseFallbackExecutor = (
   }
 
   if (MODULE_RESOLUTION_ERROR_PATTERN.test(error)) {
-    if (attemptedExecutor === 'browser' || attemptedExecutor === 'quickjs') {
-      return remainingExecutors.find(executor => executor === 'cloudflare')
+    if (attemptedExecutor === 'browser') {
+      return remainingExecutors.find(executor => executor === 'quickjs')
     }
 
-    if (attemptedExecutor === 'cloudflare') {
-      return remainingExecutors.find(executor => executor === 'quickjs')
+    if (attemptedExecutor === 'quickjs') {
+      return remainingExecutors.find(executor => executor === 'browser')
     }
   }
 

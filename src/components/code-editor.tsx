@@ -109,13 +109,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       title: executorAvailability.browser.reason,
       hint: `${EXECUTOR_DESCRIPTORS.browser.summary} ${EXECUTOR_DESCRIPTORS.browser.hint}`,
     },
-    {
-      value: 'cloudflare',
-      label: EXECUTOR_DESCRIPTORS.cloudflare.label,
-      disabled: !executorAvailability.cloudflare.ready,
-      title: executorAvailability.cloudflare.reason,
-      hint: `${EXECUTOR_DESCRIPTORS.cloudflare.summary} ${EXECUTOR_DESCRIPTORS.cloudflare.hint}`,
-    },
   ]
 
   const shareButtonTitle =

@@ -11,7 +11,6 @@ const createAvailability = (overrides: Partial<Record<ExecutorType, ExecutorAvai
   ({
     quickjs: { ready: true },
     browser: { ready: true },
-    cloudflare: { ready: true },
     ...overrides,
   }) satisfies Record<ExecutorType, ExecutorAvailability>
 
@@ -19,59 +18,55 @@ describe('executor selection strategy', () => {
   test('prefers the browser sandbox when browser globals are referenced', () => {
     const selection = selectAutoExecutor('console.log(window.location.href)', createAvailability())
 
-    assert.deepStrictEqual(selection.plan, ['browser', 'quickjs', 'cloudflare'])
+    assert.deepStrictEqual(selection.plan, ['browser', 'quickjs'])
     assert.match(selection.reason, /browser APIs/i)
   })
 
   test('prefers the browser sandbox for browser-first package imports', () => {
     const selection = selectAutoExecutor("import React from 'react'\nconsole.log(React)", createAvailability())
 
-    assert.deepStrictEqual(selection.plan, ['browser', 'quickjs', 'cloudflare'])
+    assert.deepStrictEqual(selection.plan, ['browser', 'quickjs'])
   })
 
   test('prefers QuickJS for npm imports without browser signals', () => {
     const selection = selectAutoExecutor("import { z } from 'zod'\nconsole.log(z.string())", createAvailability())
 
-    assert.deepStrictEqual(selection.plan, ['quickjs', 'browser', 'cloudflare'])
+    assert.deepStrictEqual(selection.plan, ['quickjs', 'browser'])
     assert.match(selection.reason, /npm imports/i)
   })
 
   test('prefers QuickJS for lightweight scripts', () => {
     const selection = selectAutoExecutor('const answer = 40 + 2\nconsole.log(answer)', createAvailability())
 
-    assert.deepStrictEqual(selection.plan, ['quickjs', 'browser', 'cloudflare'])
-  })
-
-  test('filters out unavailable executors from the plan', () => {
-    const selection = selectAutoExecutor("import { z } from 'zod'", createAvailability({ cloudflare: { ready: false } }))
-
     assert.deepStrictEqual(selection.plan, ['quickjs', 'browser'])
   })
 
+  test('filters out unavailable executors from the plan', () => {
+    const selection = selectAutoExecutor("import { z } from 'zod'", createAvailability({ browser: { ready: false } }))
+
+    assert.deepStrictEqual(selection.plan, ['quickjs'])
+  })
+
   test('falls back to the browser sandbox for missing DOM globals', () => {
-    const fallback = chooseFallbackExecutor('cloudflare', 'ReferenceError: window is not defined', [
+    const fallback = chooseFallbackExecutor('quickjs', 'ReferenceError: window is not defined', [
       'browser',
-      'quickjs',
     ])
 
     assert.strictEqual(fallback, 'browser')
   })
 
-  test('falls back to the Cloudflare Worker for module resolution issues in other runners', () => {
+  test('falls back to the browser sandbox for module resolution issues in QuickJS', () => {
     const fallback = chooseFallbackExecutor(
       'quickjs',
       'Error loading module react-dom: Failed to fetch https://esm.sh/react-dom',
-      ['cloudflare', 'browser']
+      ['browser']
     )
 
-    assert.strictEqual(fallback, 'cloudflare')
+    assert.strictEqual(fallback, 'browser')
   })
 
   test('does not fall back for normal user-code errors', () => {
-    const fallback = chooseFallbackExecutor('cloudflare', 'TypeError: Cannot read properties of undefined', [
-      'browser',
-      'quickjs',
-    ])
+    const fallback = chooseFallbackExecutor('browser', 'TypeError: Cannot read properties of undefined', ['quickjs'])
 
     assert.strictEqual(fallback, undefined)
   })
@@ -79,6 +74,5 @@ describe('executor selection strategy', () => {
   test('exposes user-facing labels for each executor', () => {
     assert.strictEqual(EXECUTOR_DESCRIPTORS.quickjs.label, 'QuickJS')
     assert.strictEqual(EXECUTOR_DESCRIPTORS.browser.label, 'Browser Sandbox')
-    assert.strictEqual(EXECUTOR_DESCRIPTORS.cloudflare.label, 'Cloudflare Worker')
   })
 })
