@@ -8,10 +8,9 @@ export interface ReadmeProps {
 }
 
 const QUICK_DEMOS = [
-  { name: 'lodash', href: '/lodash' },
-  { name: 'uuid', href: '/uuid' },
+  { name: 'es-toolkit', href: '/es-toolkit' },
   { name: 'marked', href: '/marked' },
-  { name: 'js-yaml', href: '/js-yaml' },
+  { name: 'yaml', href: '/yaml' },
 ]
 
 const isWelcomeMode = (packageName: string) => !packageName
