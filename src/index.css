@@ -200,6 +200,19 @@ div {
     span.running {
       padding: 0 1rem;
     }
+
+    .execution-status {
+      min-width: 0;
+      max-width: min(18rem, 38vw);
+      padding: 0 0.45rem;
+      overflow: hidden;
+      color: #888;
+      opacity: 0.8;
+      font-size: var(--font-size-xs);
+      line-height: 32px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 

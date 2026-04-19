@@ -1,11 +1,16 @@
 import { QuickJSAsyncWASMModule, newQuickJSAsyncWASMModule } from 'quickjs-emscripten'
-import { LogEntry, ExecutionResult } from './types'
+import { LogEntry, ExecutionResult, ExecutionStatusCallback } from './types'
 import { addCodeDependenciesToImportMap, resolveModuleUrl } from './module-resolution'
 
 export class JSExecutorEngine {
   private quickJSModule: QuickJSAsyncWASMModule | null = null
   private isInitialized = false
   private packageImportMap: Record<string, string> = {}
+  private onStatus: ExecutionStatusCallback | undefined
+
+  private emitStatus(message: string): void {
+    this.onStatus?.(message)
+  }
 
   async initialize(): Promise<void> {
     if (this.isInitialized) return
@@ -21,6 +26,7 @@ export class JSExecutorEngine {
   private async asyncModuleLoader(moduleName: string): Promise<string> {
     try {
       const moduleUrl = this.resolveModuleUrl(moduleName)
+      this.emitStatus(`Loading and building ${moduleName}...`)
       const response = await fetch(moduleUrl)
       if (!response.ok) {
         throw new Error(`Failed to fetch ${moduleUrl}: ${response.status} ${response.statusText}`)
@@ -129,14 +135,18 @@ export class JSExecutorEngine {
       : String(returnValue)
   }
 
-  async execute(code: string): Promise<ExecutionResult> {
+  async execute(code: string, onStatus?: ExecutionStatusCallback): Promise<ExecutionResult> {
     if (!this.quickJSModule || !this.isInitialized) {
       throw new Error('Execution engine is not initialized yet')
     }
 
+    this.onStatus = onStatus
+
     try {
+      this.emitStatus('Resolving npm imports...')
       addCodeDependenciesToImportMap(this.packageImportMap, code)
 
+      this.emitStatus('Preparing QuickJS runtime...')
       const runtime = this.quickJSModule.newRuntime()
       this.configureRuntime(runtime)
 
@@ -145,6 +155,7 @@ export class JSExecutorEngine {
       const consoleHandles = this.setupConsole(vm, logs)
 
       // Execute code
+      this.emitStatus('Executing code...')
       const result = await vm.evalCodeAsync(code)
 
       // Handle execution result
@@ -182,6 +193,8 @@ export class JSExecutorEngine {
         logs: [],
         error: `Execution error: ${error instanceof Error ? error.message : String(error)}`,
       }
+    } finally {
+      this.onStatus = undefined
     }
   }
 

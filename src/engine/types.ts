@@ -10,9 +10,11 @@ export interface ExecutionResult {
   error?: string
 }
 
+export type ExecutionStatusCallback = (message: string) => void
+
 export interface ExecutionEngine {
   initialize(): Promise<void>
-  execute(code: string): Promise<ExecutionResult>
+  execute(code: string, onStatus?: ExecutionStatusCallback): Promise<ExecutionResult>
   isReady(): boolean
   dispose(): void
   getUnavailableReason?(): string | undefined

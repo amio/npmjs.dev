@@ -1,4 +1,4 @@
-import { ExecutionResult } from './types'
+import { ExecutionResult, ExecutionStatusCallback } from './types'
 import {
   addCodeDependenciesToImportMap,
   isExternalModuleSpecifier,
@@ -172,16 +172,20 @@ export class WorkerExecutorEngine {
 
       const [moduleName, exportName] = injectConfig
       const importName = `__worker_inject_${globalName}`
-      lines.unshift(`import { ${exportName} as ${importName} } from ${JSON.stringify(this.resolveCompatibleSpecifier(moduleName))}`)
+      lines.unshift(
+        `import { ${exportName} as ${importName} } from ${JSON.stringify(this.resolveCompatibleSpecifier(moduleName))}`
+      )
       lines.push(`globalThis.${globalName} ??= ${importName}`)
     }
 
     return `${lines.join('\n')}\n`
   }
 
-  private async createExecutionModuleSource(code: string): Promise<string> {
+  private async createExecutionModuleSource(code: string, onStatus?: ExecutionStatusCallback): Promise<string> {
+    onStatus?.('Resolving npm imports...')
     addCodeDependenciesToImportMap(this.packageImportMap, code)
 
+    onStatus?.('Preparing worker runtime...')
     return `${this.createNodeCompatPrelude()}\n${this.rewriteImportSpecifiers(code)}`
   }
 
@@ -231,6 +235,10 @@ const reportResult = result => {
   self.postMessage({ type: 'execution-result', result })
 }
 
+const reportStatus = message => {
+  self.postMessage({ type: 'execution-status', message })
+}
+
 const reportError = error => {
   reportResult({
     logs: executionLogs,
@@ -248,7 +256,9 @@ self.addEventListener('unhandledrejection', event => {
 
 ;(async () => {
   try {
+    reportStatus('Loading and building npm modules...')
     const module = await import(${JSON.stringify(moduleUrl)})
+    reportStatus('Collecting execution result...')
     const executionResult = module.default !== undefined ? module.default : module
 
     reportResult({
@@ -265,12 +275,12 @@ self.addEventListener('unhandledrejection', event => {
 `
   }
 
-  async execute(code: string): Promise<ExecutionResult> {
+  async execute(code: string, onStatus?: ExecutionStatusCallback): Promise<ExecutionResult> {
     if (!this.isInitialized) {
       throw new Error('Execution engine is not initialized yet')
     }
 
-    const executionModuleSource = await this.createExecutionModuleSource(code)
+    const executionModuleSource = await this.createExecutionModuleSource(code, onStatus)
     const executionModuleUrl = URL.createObjectURL(new Blob([executionModuleSource], { type: 'text/javascript' }))
     const workerSource = this.createWorkerSource(executionModuleUrl)
     const workerUrl = URL.createObjectURL(new Blob([workerSource], { type: 'text/javascript' }))
@@ -289,7 +299,16 @@ self.addEventListener('unhandledrejection', event => {
       }, 30000)
 
       worker.addEventListener('message', event => {
-        if (!event.data || event.data.type !== 'execution-result') {
+        if (!event.data) {
+          return
+        }
+
+        if (event.data.type === 'execution-status') {
+          onStatus?.(event.data.message)
+          return
+        }
+
+        if (event.data.type !== 'execution-result') {
           return
         }
 

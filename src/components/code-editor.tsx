@@ -28,6 +28,7 @@ export interface CodeEditorProps {
   onChange: (code: string) => void
   onExecute: () => void
   isLoading: boolean
+  executionStatus?: string
   executorType: ExecutorType
   onExecutorTypeChange: (type: ExecutorType) => void
   executorAvailability: Record<ExecutorType, ExecutorAvailability>
@@ -38,6 +39,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   onChange,
   onExecute,
   isLoading,
+  executionStatus,
   executorType,
   onExecutorTypeChange,
   executorAvailability,
@@ -154,6 +156,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
               />
             </div>
           </div>
+          {isLoading && executionStatus && (
+            <div className="execution-status" role="status" aria-live="polite" title={executionStatus}>
+              {executionStatus}
+            </div>
+          )}
           <Toggle active={isLoading}>
             <div className="spinner" />
           </Toggle>

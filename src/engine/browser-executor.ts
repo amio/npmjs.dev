@@ -1,4 +1,4 @@
-import { ExecutionResult } from './types'
+import { ExecutionResult, ExecutionStatusCallback } from './types'
 import { addCodeDependenciesToImportMap, addSpecifierToImportMap, stringifyImportMap } from './module-resolution'
 
 export class BrowserExecutorEngine {
@@ -107,6 +107,7 @@ export class BrowserExecutorEngine {
                 window.executionLogs = [];
                 window.executionError = null;
                 window.executionResult = undefined;
+                parent.postMessage({ type: 'execution-status', message: 'Creating browser module...' }, '*');
 
                 // Create a blob URL for the module
                 const blob = new Blob([code], { type: 'application/javascript' });
@@ -114,7 +115,9 @@ export class BrowserExecutorEngine {
 
                 try {
                   // Import the module
+                  parent.postMessage({ type: 'execution-status', message: 'Loading and building npm modules...' }, '*');
                   const module = await import(moduleUrl);
+                  parent.postMessage({ type: 'execution-status', message: 'Collecting execution result...' }, '*');
 
                   // Store the default export or the entire module as result
                   window.executionResult = module.default !== undefined ? module.default : module;
@@ -189,16 +192,18 @@ export class BrowserExecutorEngine {
     }
   }
 
-  async execute(code: string): Promise<ExecutionResult> {
+  async execute(code: string, onStatus?: ExecutionStatusCallback): Promise<ExecutionResult> {
     try {
       const previousImportMapSnapshot = this.importMapSnapshot
 
       // Parse imports and update import map
+      onStatus?.('Resolving npm imports...')
       this.parseAndAddImports(code)
       this.importMapSnapshot = this.generateImportMap()
 
       // Reinitialize iframe with updated import map if new packages were added
       if (!this.isInitialized || this.importMapSnapshot !== previousImportMapSnapshot) {
+        onStatus?.('Preparing browser sandbox...')
         await this.reinitializeIframe()
       }
 
@@ -208,15 +213,32 @@ export class BrowserExecutorEngine {
 
       // Use postMessage to communicate with iframe
       return new Promise<ExecutionResult>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          window.removeEventListener('message', handleMessage)
+          reject(new Error('Execution timeout'))
+        }, 30000)
+
         const handleMessage = (event: MessageEvent) => {
-          if (event.data && event.data.type === 'execution-result') {
-            window.removeEventListener('message', handleMessage)
-            resolve({
-              logs: event.data.result.logs || [],
-              returnValue: event.data.result.returnValue,
-              error: event.data.result.error,
-            })
+          if (!event.data) {
+            return
           }
+
+          if (event.data.type === 'execution-status') {
+            onStatus?.(event.data.message)
+            return
+          }
+
+          if (event.data.type !== 'execution-result') {
+            return
+          }
+
+          clearTimeout(timeoutId)
+          window.removeEventListener('message', handleMessage)
+          resolve({
+            logs: event.data.result.logs || [],
+            returnValue: event.data.result.returnValue,
+            error: event.data.result.error,
+          })
         }
 
         window.addEventListener('message', handleMessage)
@@ -229,12 +251,6 @@ export class BrowserExecutorEngine {
           },
           '*'
         )
-
-        // Timeout after 30 seconds
-        setTimeout(() => {
-          window.removeEventListener('message', handleMessage)
-          reject(new Error('Execution timeout'))
-        }, 30000)
       })
     } catch (error) {
       return {

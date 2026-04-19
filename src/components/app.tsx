@@ -43,6 +43,7 @@ const App: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [error, setError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
+  const [executionStatus, setExecutionStatus] = useState<string | undefined>()
   const [hasExecuted, setHasExecuted] = useState(false)
   const [executorType, setExecutorType] = useState<ExecutorType>('browser')
   const [hasManualExecutorSelection, setHasManualExecutorSelection] = useState(false)
@@ -133,6 +134,7 @@ const App: React.FC = () => {
     setCode(newCode)
     clearCodeFromUrl()
     setHasExecuted(false)
+    setExecutionStatus(undefined)
   }, [])
 
   // Listen for URL changes and update code example
@@ -144,6 +146,7 @@ const App: React.FC = () => {
       setLogs([])
       setError(undefined)
       setHasExecuted(false)
+      setExecutionStatus(undefined)
       setHasManualExecutorSelection(false)
     }
 
@@ -168,17 +171,19 @@ const App: React.FC = () => {
     if (!initialExecutor?.isReady()) {
       setError(initialExecutor?.getUnavailableReason?.() || 'Execution engine is not initialized yet')
       setHasExecuted(true)
+      setExecutionStatus(undefined)
       return
     }
 
     setIsLoading(true)
     setError(undefined)
     setLogs([])
+    setExecutionStatus(`Starting ${EXECUTOR_DESCRIPTORS[executionPlan[0]].label}...`)
 
     try {
       const infoLogs: LogEntry[] = []
       let activeExecutorType = executionPlan[0]
-      let lastResult = await executors[activeExecutorType].execute(code)
+      let lastResult = await executors[activeExecutorType].execute(code, setExecutionStatus)
 
       if (!hasManualExecutorSelection) {
         let remainingExecutors = executionPlan.slice(1)
@@ -196,8 +201,9 @@ const App: React.FC = () => {
           )
 
           activeExecutorType = fallbackExecutorType
+          setExecutionStatus(`Retrying with ${EXECUTOR_DESCRIPTORS[activeExecutorType].label}...`)
           remainingExecutors = remainingExecutors.filter(type => type !== fallbackExecutorType)
-          lastResult = await executors[activeExecutorType].execute(code)
+          lastResult = await executors[activeExecutorType].execute(code, setExecutionStatus)
         }
       }
 
@@ -217,6 +223,7 @@ const App: React.FC = () => {
       setHasExecuted(true)
     } finally {
       setIsLoading(false)
+      setExecutionStatus(undefined)
     }
   }, [autoExecutorSelection.plan, code, executorType, executors, hasManualExecutorSelection])
 
@@ -240,6 +247,7 @@ const App: React.FC = () => {
             onChange={handleCodeChange}
             onExecute={executeCode}
             isLoading={isLoading}
+            executionStatus={executionStatus}
             executorType={executorType}
             onExecutorTypeChange={handleExecutorTypeChange}
             executorAvailability={executorAvailability}
