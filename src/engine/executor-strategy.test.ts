@@ -1,7 +1,12 @@
 import assert from 'node:assert'
 import { describe, test } from 'node:test'
 import { ExecutorAvailability, ExecutorType } from './types'
-import { chooseFallbackExecutor, EXECUTOR_DESCRIPTORS, selectAutoExecutor } from './executor-strategy'
+import {
+  chooseFallbackExecutor,
+  EXECUTOR_DESCRIPTORS,
+  USER_SELECTABLE_EXECUTOR_ORDER,
+  selectAutoExecutor,
+} from './executor-strategy'
 
 const createAvailability = (overrides: Partial<Record<ExecutorType, ExecutorAvailability>> = {}) =>
   ({
@@ -28,27 +33,27 @@ describe('executor selection strategy', () => {
   test('prefers the worker sandbox for node builtins', () => {
     const selection = selectAutoExecutor("import path from 'node:path'\nconsole.log(path.sep)", createAvailability())
 
-    assert.deepStrictEqual(selection.plan, ['worker', 'quickjs', 'browser'])
+    assert.deepStrictEqual(selection.plan, ['worker', 'browser', 'quickjs'])
     assert.match(selection.reason, /node/i)
   })
 
   test('prefers the worker sandbox when process or Buffer globals are referenced', () => {
     const selection = selectAutoExecutor('console.log(process.env.NODE_ENV, Buffer.from("ok"))', createAvailability())
 
-    assert.deepStrictEqual(selection.plan, ['worker', 'quickjs', 'browser'])
+    assert.deepStrictEqual(selection.plan, ['worker', 'browser', 'quickjs'])
   })
 
-  test('prefers QuickJS for npm imports without browser signals', () => {
+  test('prefers the browser sandbox for npm imports without browser signals', () => {
     const selection = selectAutoExecutor("import { z } from 'zod'\nconsole.log(z.string())", createAvailability())
 
-    assert.deepStrictEqual(selection.plan, ['quickjs', 'worker', 'browser'])
+    assert.deepStrictEqual(selection.plan, ['browser', 'worker', 'quickjs'])
     assert.match(selection.reason, /npm imports/i)
   })
 
-  test('prefers QuickJS for lightweight scripts', () => {
+  test('prefers the browser sandbox for lightweight scripts', () => {
     const selection = selectAutoExecutor('const answer = 40 + 2\nconsole.log(answer)', createAvailability())
 
-    assert.deepStrictEqual(selection.plan, ['quickjs', 'worker', 'browser'])
+    assert.deepStrictEqual(selection.plan, ['browser', 'worker', 'quickjs'])
   })
 
   test('filters out unavailable executors from the plan', () => {
@@ -61,19 +66,13 @@ describe('executor selection strategy', () => {
   })
 
   test('falls back to the worker sandbox for missing Node globals', () => {
-    const fallback = chooseFallbackExecutor('quickjs', 'ReferenceError: process is not defined', [
-      'worker',
-      'browser',
-    ])
+    const fallback = chooseFallbackExecutor('quickjs', 'ReferenceError: process is not defined', ['worker', 'browser'])
 
     assert.strictEqual(fallback, 'worker')
   })
 
   test('falls back to the browser sandbox for missing DOM globals', () => {
-    const fallback = chooseFallbackExecutor('quickjs', 'ReferenceError: window is not defined', [
-      'worker',
-      'browser',
-    ])
+    const fallback = chooseFallbackExecutor('quickjs', 'ReferenceError: window is not defined', ['worker', 'browser'])
 
     assert.strictEqual(fallback, 'browser')
   })
@@ -101,5 +100,9 @@ describe('executor selection strategy', () => {
     assert.strictEqual(EXECUTOR_DESCRIPTORS.quickjs.label, 'QuickJS')
     assert.strictEqual(EXECUTOR_DESCRIPTORS.worker.label, 'Worker')
     assert.strictEqual(EXECUTOR_DESCRIPTORS.browser.label, 'Browser')
+  })
+
+  test('hides QuickJS from the user-selectable executor list', () => {
+    assert.deepStrictEqual(USER_SELECTABLE_EXECUTOR_ORDER, ['browser', 'worker'])
   })
 })

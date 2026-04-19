@@ -2,6 +2,7 @@ import { ExecutorAvailability, ExecutorType, LogEntry } from './types'
 import { parseModuleDeps } from './utils'
 
 export const EXECUTOR_ORDER: ExecutorType[] = ['quickjs', 'worker', 'browser']
+export const USER_SELECTABLE_EXECUTOR_ORDER: ExecutorType[] = ['browser', 'worker']
 
 export interface ExecutorDescriptor {
   label: string
@@ -108,14 +109,14 @@ export const selectAutoExecutor = (
     preferredExecutors = ['browser', 'worker', 'quickjs']
     reason = 'browser APIs or browser-first packages were detected.'
   } else if (hasNodeSignals) {
-    preferredExecutors = ['worker', 'quickjs', 'browser']
+    preferredExecutors = ['worker', 'browser', 'quickjs']
     reason = 'Node.js APIs or Node-style globals were detected.'
   } else if (hasExternalModules) {
-    preferredExecutors = ['quickjs', 'worker', 'browser']
-    reason = 'npm imports were detected. Running locally via esm.sh first.'
+    preferredExecutors = ['browser', 'worker', 'quickjs']
+    reason = 'npm imports were detected. Running in the browser sandbox first.'
   } else {
-    preferredExecutors = ['quickjs', 'worker', 'browser']
-    reason = 'the script looks lightweight, so the fastest VM is preferred.'
+    preferredExecutors = ['browser', 'worker', 'quickjs']
+    reason = 'the browser sandbox is the default execution environment.'
   }
 
   const plan = uniqueAvailableExecutors(availability, preferredExecutors)

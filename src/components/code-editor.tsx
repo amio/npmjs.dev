@@ -1,7 +1,7 @@
 import React from 'react'
 import { Toggle, RadioSwitch, RadioSwitchOption } from './ui-elements'
 import { ExecutorAvailability, ExecutorType } from '../engine/types'
-import { EXECUTOR_DESCRIPTORS } from '../engine/executor-strategy'
+import { EXECUTOR_DESCRIPTORS, USER_SELECTABLE_EXECUTOR_ORDER } from '../engine/executor-strategy'
 import { generateShareUrl } from '../utils/url-code'
 import { RiShareLine, RiCheckLine } from '@remixicon/react'
 
@@ -95,29 +95,13 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     shareTimerRef.current = setTimeout(() => setShareStatus('idle'), 2500)
   }, [code])
 
-  const executorOptions: RadioSwitchOption[] = [
-    {
-      value: 'quickjs',
-      label: EXECUTOR_DESCRIPTORS.quickjs.label,
-      disabled: !executorAvailability.quickjs.ready,
-      title: executorAvailability.quickjs.reason,
-      hint: `${EXECUTOR_DESCRIPTORS.quickjs.summary} ${EXECUTOR_DESCRIPTORS.quickjs.hint}`,
-    },
-    {
-      value: 'browser',
-      label: EXECUTOR_DESCRIPTORS.browser.label,
-      disabled: !executorAvailability.browser.ready,
-      title: executorAvailability.browser.reason,
-      hint: `${EXECUTOR_DESCRIPTORS.browser.summary} ${EXECUTOR_DESCRIPTORS.browser.hint}`,
-    },
-    {
-      value: 'worker',
-      label: EXECUTOR_DESCRIPTORS.worker.label,
-      disabled: !executorAvailability.worker.ready,
-      title: executorAvailability.worker.reason,
-      hint: `${EXECUTOR_DESCRIPTORS.worker.summary} ${EXECUTOR_DESCRIPTORS.worker.hint}`,
-    },
-  ]
+  const executorOptions: RadioSwitchOption[] = USER_SELECTABLE_EXECUTOR_ORDER.map(type => ({
+    value: type,
+    label: EXECUTOR_DESCRIPTORS[type].label,
+    disabled: !executorAvailability[type].ready,
+    title: executorAvailability[type].reason,
+    hint: `${EXECUTOR_DESCRIPTORS[type].summary} ${EXECUTOR_DESCRIPTORS[type].hint}`,
+  }))
 
   const shareButtonTitle =
     effectiveShareStatus === 'copied'

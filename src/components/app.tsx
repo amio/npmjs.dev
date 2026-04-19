@@ -12,6 +12,7 @@ import {
   createExecutorInfoLog,
   EXECUTOR_DESCRIPTORS,
   EXECUTOR_ORDER,
+  USER_SELECTABLE_EXECUTOR_ORDER,
   selectAutoExecutor,
 } from '../engine/executor-strategy'
 import { saveCodeToStorage, loadCodeFromStorage } from '../utils/local-storage'
@@ -22,6 +23,8 @@ const createDefaultExecutorAvailability = (): Record<ExecutorType, ExecutorAvail
   worker: { ready: false, reason: `${EXECUTOR_DESCRIPTORS.worker.label} is still initializing.` },
   browser: { ready: false, reason: `${EXECUTOR_DESCRIPTORS.browser.label} is still initializing.` },
 })
+
+const isUserSelectableExecutor = (type: ExecutorType): boolean => USER_SELECTABLE_EXECUTOR_ORDER.includes(type)
 
 const App: React.FC = () => {
   const packageName = getPackageNameFromUrl(window.location.href)
@@ -41,7 +44,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [hasExecuted, setHasExecuted] = useState(false)
-  const [executorType, setExecutorType] = useState<ExecutorType>('quickjs')
+  const [executorType, setExecutorType] = useState<ExecutorType>('browser')
   const [hasManualExecutorSelection, setHasManualExecutorSelection] = useState(false)
   const [executorAvailability, setExecutorAvailability] = useState<Record<ExecutorType, ExecutorAvailability>>(
     createDefaultExecutorAvailability
@@ -109,7 +112,8 @@ const App: React.FC = () => {
     }
 
     const fallbackExecutor =
-      autoExecutorSelection.plan[0] || EXECUTOR_ORDER.find(type => executorAvailability[type].ready)
+      autoExecutorSelection.plan.find(isUserSelectableExecutor) ||
+      USER_SELECTABLE_EXECUTOR_ORDER.find(type => executorAvailability[type].ready)
     if (fallbackExecutor && fallbackExecutor !== executorType) {
       setExecutorType(fallbackExecutor)
     }
@@ -197,7 +201,11 @@ const App: React.FC = () => {
         }
       }
 
-      if (!hasManualExecutorSelection && activeExecutorType !== executorType) {
+      if (
+        !hasManualExecutorSelection &&
+        isUserSelectableExecutor(activeExecutorType) &&
+        activeExecutorType !== executorType
+      ) {
         setExecutorType(activeExecutorType)
       }
 
@@ -238,7 +246,12 @@ const App: React.FC = () => {
           />
           <Output logs={logs} error={error} hasExecuted={hasExecuted} isLoading={isLoading} />
           <footer className="app-footer">
-            <a className="app-footer-link" href="https://github.com/amio/npmjs.dev" target="_blank" rel="noopener noreferrer">
+            <a
+              className="app-footer-link"
+              href="https://github.com/amio/npmjs.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <RiGithubFill size={14} aria-hidden="true" />
               npmjs.dev
             </a>
