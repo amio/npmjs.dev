@@ -1,32 +1,29 @@
 # npmjs.dev
 
-A lightweight in‑browser playground to explore and run npm packages instantly—no local install required. Enter a package in the URL, edit code, run it, and view the package’s README side‑by‑side.
+A lightweight in‑browser playground to explore and run npm packages instantly, and view the package’s README side‑by‑side.
+
+A spiritual successor to [RunKit](https://runkit.com/), built with modern web technologies and totally running in browser. Long live the web!
 
 Checkout: [https://npmjs.dev/](https://npmjs.dev/)
-
-Or run it locally: `npm run dev`
 
 > This project is an independent experiment and not affiliated with npm, Inc.
 
 ## Features
 
-- Three execution engines:
-  - QuickJS (WASM) – fast startup, sandboxed
-  - Worker Sandbox (Node-compatible shims via unenv)
+- Two execution engines:
   - Browser Sandbox (DOM APIs + import maps via esm.sh)
+  - Worker Sandbox (Node-compatible shims via unenv)
 - Automatic sample code based on URL package
 - Live console capture (log / info / warn / error)
 - README auto-fetch from unpkg (fallback name variants)
-- Zero build step for adding packages—import and run
-- Clean React + TypeScript architecture (Vite powered)
+
+## Development
 
 For local development:
 
 ```sh
 npm run dev
 ```
-
-This starts the Vite dev server.
 
 ## License
 
