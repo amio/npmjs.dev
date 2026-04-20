@@ -29,6 +29,7 @@ const SUPPORTED_NODE_MODULES = [
   'url',
   'util',
   'util/types',
+  'os',
 ]
 
 const MOCKED_NODE_MODULES = [
@@ -46,7 +47,6 @@ const MOCKED_NODE_MODULES = [
   'http2',
   'inspector',
   'inspector/promises',
-  'os',
   'path/posix',
   'path/win32',
   'perf_hooks',
@@ -96,6 +96,9 @@ const WORKER_ENVIRONMENT = {
     'node-fetch': 'unenv/runtime/npm/node-fetch',
     'node-fetch-native': 'unenv/runtime/npm/node-fetch',
     'node-fetch-native/polyfill': 'unenv/runtime/mock/empty',
+    'consola': 'unenv/runtime/npm/consola',
+    'debug': 'unenv/runtime/npm/debug',
+    'whatwg-url': 'unenv/runtime/npm/whatwg-url',
   },
   inject: {
     process: 'unenv/runtime/polyfill/process',
@@ -177,6 +180,11 @@ export class WorkerExecutorEngine {
       )
       lines.push(`globalThis.${globalName} ??= ${importName}`)
     }
+
+    lines.push('globalThis.setImmediate ??= (fn, ...args) => setTimeout(() => fn(...args), 0)')
+    lines.push('globalThis.clearImmediate ??= (id) => clearTimeout(id)')
+    lines.push("globalThis.__dirname ??= '/'")
+    lines.push("globalThis.__filename ??= '/index.js'")
 
     return `${lines.join('\n')}\n`
   }
