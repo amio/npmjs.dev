@@ -134,7 +134,7 @@ export class WorkerExecutorEngine {
   }
 
   private resolveCompatibleSpecifier(specifier: string): string {
-    const aliasTarget = WORKER_ENVIRONMENT.alias[specifier]
+    const aliasTarget = (WORKER_ENVIRONMENT.alias as Record<string, string>)[specifier]
 
     if (aliasTarget) {
       return toEsmShUrl(aliasTarget)
