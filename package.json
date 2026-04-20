@@ -16,6 +16,7 @@
     "@types/dompurify": "^3.0.5",
     "@uiw/codemirror-theme-github": "^4.23.12",
     "@uiw/react-codemirror": "^4.23.12",
+    "@vercel/analytics": "^2.0.1",
     "@webcontainer/api": "^1.6.1",
     "dompurify": "^3.3.3",
     "lz-string": "^1.5.0",

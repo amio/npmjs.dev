@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { RiGithubFill } from '@remixicon/react'
+import { Analytics } from '@vercel/analytics/react'
 import { CodeEditor } from './code-editor'
 import { Output } from './output'
 import { Readme } from './readme'
@@ -233,7 +234,9 @@ const App: React.FC = () => {
   }, [])
 
   return (
-    <div className="app-container">
+    <>
+      <Analytics />
+      <div className="app-container">
       <div className="header-row">
         <div className="app-header width-limited">
           <h1>npmjs:dev</h1>
@@ -271,6 +274,7 @@ const App: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
